@@ -17,13 +17,13 @@
         .modal.active {
             display: flex; 
         }
-        #orderPageContainer, #quickSaleModal, #addProductToMenuModal, #editProductModal, #manageTablesModal, #manageWaitersModal, #confirmDeleteTableModal, #confirmDeleteWaiterModal { 
+        #orderPageContainer, #quickSaleModal, #addProductToMenuModal, #editProductModal, #manageTablesModal, #manageWaitersModal, #confirmDeleteTableModal, #confirmDeleteWaiterModal, #bulkEditMenuModal, #salesReportModal { 
             display: none; 
         }
-        #orderPageContainer.active, #quickSaleModal.active, #addProductToMenuModal.active, #editProductModal.active, #manageTablesModal.active, #manageWaitersModal.active, #confirmDeleteTableModal.active, #confirmDeleteWaiterModal.active {
+        #orderPageContainer.active, #quickSaleModal.active, #addProductToMenuModal.active, #editProductModal.active, #manageTablesModal.active, #manageWaitersModal.active, #confirmDeleteTableModal.active, #confirmDeleteWaiterModal.active, #bulkEditMenuModal.active, #salesReportModal.active {
             display: block; 
         }
-        #quickSaleModal.active, #addProductToMenuModal.active, #editProductModal.active, #manageTablesModal.active, #manageWaitersModal.active, #confirmDeleteTableModal.active, #confirmDeleteWaiterModal.active { 
+        #quickSaleModal.active, #addProductToMenuModal.active, #editProductModal.active, #manageTablesModal.active, #manageWaitersModal.active, #confirmDeleteTableModal.active, #confirmDeleteWaiterModal.active, #bulkEditMenuModal.active, #salesReportModal.active { 
             position: fixed;
             inset: 0;
             background-color: rgba(0,0,0,0.75);
@@ -37,7 +37,8 @@
         #manageTablesModal.active .modal-content,
         #manageWaitersModal.active .modal-content,
         #confirmDeleteTableModal.active .modal-content,
-        #confirmDeleteWaiterModal.active .modal-content { 
+        #confirmDeleteWaiterModal.active .modal-content,
+        #bulkEditMenuModal.active .modal-content { 
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -148,92 +149,114 @@
             body {
                 margin: 0;
                 padding: 0;
-                background-color: #fff; /* Arka planı beyaz yap */
+                background-color: #fff; 
             }
             body * {
-                visibility: hidden; /* Önce her şeyi gizle */
-                font-family: 'Arial', sans-serif; /* Yazıcı dostu font */
+                visibility: hidden; 
+                font-family: 'Arial', sans-serif; 
             }
 
             #receiptModalContent, #receiptModalContent * {
-                visibility: visible; /* Sadece fiş içeriğini görünür yap */
+                visibility: visible; 
             }
 
             #receiptModalContent {
                 position: absolute;
                 left: 0;
                 top: 0;
-                width: 78mm; /* 80mm kağıt için ~76-78mm kullanılabilir alan, kenar boşlukları düşünülerek */
-                /* height: 78mm; Eğer sabit yükseklik isteniyorsa, ama genellikle termal fişler için yükseklik değişkendir */
-                /* overflow: hidden; Eğer sabit yükseklik ve içerik taşıyorsa */
-                font-size: 8pt; /* Daha küçük font boyutu */
-                line-height: 1.3; /* Satır yüksekliği */
-                padding: 2mm; /* İç kenar boşluğu */
+                width: 78mm; 
+                font-size: 8pt; 
+                line-height: 1.3; 
+                padding: 2mm; 
                 box-sizing: border-box;
-                border: none; /* Yazdırma sırasında kenarlık olmasın */
-                box-shadow: none; /* Yazdırma sırasında gölge olmasın */
-                background-color: #fff; /* Arka planı beyaz yap */
-                color: #000; /* Yazı rengi siyah */
+                border: none; 
+                box-shadow: none; 
+                background-color: #fff; 
+                color: #000; 
                 margin: 0;
                 border-radius: 0;
             }
+            #salesReportModalContent, #salesReportModalContent * {
+                 visibility: visible;
+            }
+             #salesReportModalContent {
+                 position: absolute;
+                 left: 0;
+                 top: 0;
+                 width: 100%; 
+                 font-size: 10pt;
+                 padding: 10mm;
+                 box-sizing: border-box;
+             }
+             #salesReportModalContent table {
+                 width: 100%;
+                 border-collapse: collapse;
+             }
+             #salesReportModalContent th, #salesReportModalContent td {
+                 border: 1px solid #ccc;
+                 padding: 2mm;
+                 text-align: left;
+             }
+             #salesReportModalContent th {
+                 background-color: #eee;
+             }
 
             #receiptModalContent .print-hide,
-            #receiptModalContent .md\:p-8 /* Tailwind'den gelen padding'leri sıfırla */
+            #receiptModalContent .md\:p-8
             {
                 display: none !important;
             }
             
             #receiptModalContent h2 {
-                font-size: 10pt; /* Daha küçük başlık */
+                font-size: 10pt; 
                 font-weight: bold;
                 margin-bottom: 2mm;
                 text-align: center;
             }
             #receiptModalContent p {
-                margin-bottom: 0.5mm; /* Paragraflar arası boşluk azaltıldı */
+                margin-bottom: 0.5mm; 
             }
             #receiptModalContent hr {
                 margin-top: 1.5mm;
                 margin-bottom: 1.5mm;
-                border-top: 1px dashed #555; /* Daha belirgin kesik çizgi */
+                border-top: 1px dashed #555; 
             }
             #receiptModalContent div#receiptItems > div {
                 display: flex;
                 justify-content: space-between;
-                flex-wrap: nowrap; /* Satır içinde kalsın, alta kaymasın */
+                flex-wrap: nowrap; 
                 margin-bottom: 0.5mm;
             }
             #receiptModalContent div#receiptItems span.item-details {
-                flex-basis: auto; /* Otomatik genişlik */
-                margin-right: 2mm; /* Ürün adı ve fiyat arası boşluk */
-                white-space: normal; /* Uzun ürün adları için */
+                flex-basis: auto; 
+                margin-right: 2mm; 
+                white-space: normal; 
                 word-break: break-word;
             }
             #receiptModalContent div#receiptItems span.item-price {
-                flex-basis: content; /* İçeriğe göre genişlik */
+                flex-basis: content; 
                 text-align: right;
-                white-space: nowrap; /* Fiyat tek satırda kalsın */
+                white-space: nowrap; 
             }
             #receiptModalContent div#receiptItems span.item-description,
             #receiptModalContent div#receiptItems span.item-waiter {
                 display: block;
-                font-size: 7pt; /* Açıklama için daha küçük font */
-                padding-left: 3mm; /* Biraz içeriden başlasın */
+                font-size: 7pt; 
+                padding-left: 3mm; 
                 color: #333;
                 flex-basis: 100%;
                 margin-top: 0.2mm;
             }
             #receiptModalContent .discount-info {
                 font-weight: bold;
-                color: #000; /* İndirim bilgisi de siyah olabilir veya isteğe bağlı */
+                color: #000; 
             }
              #receiptModalContent .discount-info div {
                 display: flex;
                 justify-content: space-between;
             }
             #receiptModalContent .text-right p#receiptTotalLine {
-                font-size: 9pt; /* Toplam için biraz daha büyük */
+                font-size: 9pt; 
                 font-weight: bold;
                 margin-top: 1mm;
             }
@@ -243,11 +266,10 @@
                 font-size: 7pt;
             }
 
-            /* Diğer sayfa elementlerini ve yazdırma dışı kalacakları gizle */
             #loginModal, #appContainer, #orderPageContainer, #quickSaleModal, 
             #addProductToMenuModal, #editProductModal, #manageTablesModal, #manageWaitersModal,
             #confirmDeleteTableModal, #confirmDeleteWaiterModal, #salesReportModal, #loadingOverlay,
-            #confirmCloseTableModal, #confirmDiscountModal {
+            #confirmCloseTableModal, #confirmDiscountModal, #bulkEditMenuModal {
                 display: none !important;
             }
         }
@@ -299,7 +321,7 @@
                     <div class="flex justify-between items-center mb-4">
                         <h2 class="text-2xl font-semibold text-gray-700">Masalar</h2>
                     </div>
-                    <div id="quickSaleButtonContainerTop" class="mb-6 hidden"> 
+                    <div id="quickSaleButtonContainerTop" class="mb-6 hidden">
                         <button id="quickSaleEntryButton" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-6 px-6 rounded-xl shadow-lg text-2xl transition duration-150 transform hover:scale-105">
                             HIZLI SATIŞ
                         </button>
@@ -313,6 +335,7 @@
                      <h2 class="text-2xl font-semibold mb-4 text-gray-700">Güncel Menü</h2>
                      <div class="bg-white p-6 rounded-lg shadow max-h-[70vh] overflow-y-auto">
                         <div id="productsListRef">
+                            <p class="text-gray-500">Menü boş. Kasa yetkisiyle "Menüyü Toplu Düzenle" seçeneğini kullanın.</p>
                             </div>
                      </div>
                 </section>
@@ -320,7 +343,7 @@
         </div>
     </div>
 
-    <div id="orderPageContainer" class="container mx-auto p-4 md:p-8"> 
+    <div id="orderPageContainer" class="container mx-auto p-4 md:p-8">
         <header class="mb-6 flex flex-wrap justify-between items-center">
             <div class="w-full md:w-auto mb-2 md:mb-0">
                 <h2 class="text-3xl font-semibold text-blue-700">Sipariş: <span id="orderPageTableName"></span></h2>
@@ -329,10 +352,11 @@
             <button id="backToTablesButton" class="bg-gray-500 hover:bg-gray-600 text-white font-semibold py-2 px-4 rounded-md transition duration-150">Masalara Dön</button>
         </header>
         
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6"> 
-            <section class="lg:col-span-2 bg-white p-6 rounded-lg shadow"> 
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <section class="lg:col-span-2 bg-white p-6 rounded-lg shadow">
                 <h3 class="text-xl font-semibold mb-4 text-gray-700">Ürün Seçimi</h3>
                 <div id="orderPageProductGrid" class="space-y-6 max-h-[75vh] overflow-y-auto pr-2">
+                    <p class="text-gray-500">Menü boş veya yüklenemedi.</p>
                     </div>
 
                 <div id="manualProductSection" class="mt-6 pt-6 border-t border-gray-200 hidden">
@@ -353,7 +377,7 @@
                 </div>
             </section>
 
-            <section class="lg:col-span-1 bg-white p-6 rounded-lg shadow"> 
+            <section class="lg:col-span-1 bg-white p-6 rounded-lg shadow">
                 <h3 class="text-xl font-semibold mb-4 text-gray-700">Mevcut Sipariş</h3>
                 <div id="orderPageCurrentOrderItems" class="space-y-3 max-h-[75vh] overflow-y-auto pr-2">
                     </div>
@@ -381,6 +405,7 @@
                 <section class="md:col-span-2 bg-gray-50 p-3 rounded-lg shadow-inner overflow-y-auto max-h-[calc(95vh-150px)]">
                     <h3 class="text-lg font-semibold mb-3 text-gray-700">Ürün Seçimi</h3>
                     <div id="quickSaleProductGrid" class="space-y-4">
+                        <p class="text-gray-500">Menü boş veya yüklenemedi.</p>
                         </div>
                 </section>
                 <section class="md:col-span-1 bg-gray-50 p-3 rounded-lg shadow-inner flex flex-col max-h-[calc(95vh-150px)]">
@@ -401,39 +426,38 @@
         </div>
     </div>
 
-
     <div id="bulkEditMenuModal" class="modal fixed inset-0 bg-gray-900 bg-opacity-75 items-center justify-center z-50">
-    <div class="modal-content" style="width: 90%; max-width: 1000px;">
-        <div class="bg-white p-6 rounded-lg shadow-xl w-full max-h-[90vh] flex flex-col">
-            <div class="flex justify-between items-center mb-4">
-                <h2 class="text-xl font-semibold text-cyan-600">Menüyü Toplu Düzenle</h2>
-                <button id="closeBulkEditMenuModalButton" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
-            </div>
-            <div class="flex-grow overflow-y-auto mb-4 pr-2">
-                <table class="w-full text-sm">
-                    <thead>
-                        <tr class="bg-gray-100">
-                            <th class="p-2 border text-left">ID</th>
-                            <th class="p-2 border text-left">Ad</th>
-                            <th class="p-2 border text-left">Fiyat (₺)</th>
-                            <th class="p-2 border text-left">Kategori</th>
-                            <th class="p-2 border text-center">İşlem</th>
-                        </tr>
-                    </thead>
-                    <tbody id="bulkEditProductList">
+        <div class="modal-content" style="width: 90%; max-width: 1000px;">
+            <div class="bg-white p-6 rounded-lg shadow-xl w-full max-h-[90vh] flex flex-col">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-semibold text-cyan-600">Menüyü Toplu Düzenle</h2>
+                    <button id="closeBulkEditMenuModalButton" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
+                </div>
+                <div class="flex-grow overflow-y-auto mb-4 pr-2">
+                    <table class="w-full text-sm">
+                        <thead>
+                            <tr class="bg-gray-100">
+                                <th class="p-2 border text-left">ID</th>
+                                <th class="p-2 border text-left">Ad</th>
+                                <th class="p-2 border text-left">Fiyat (₺)</th>
+                                <th class="p-2 border text-left">Kategori</th>
+                                <th class="p-2 border text-center">İşlem</th>
+                            </tr>
+                        </thead>
+                        <tbody id="bulkEditProductList">
                         </tbody>
-                </table>
-            </div>
-            <div class="mt-auto pt-4 flex flex-wrap justify-between items-center gap-2">
-                <button id="addNewProductToBulkEditListButton" class="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-md">Listeye Yeni Ürün Ekle</button>
-                <div>
-                    <button id="saveBulkMenuChangesButton" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-md">Değişiklikleri Kaydet ve Sunucuya Gönder</button>
-                    <button id="cancelBulkEditButton" class="bg-gray-500 hover:bg-gray-600 text-white font-semibold py-2 px-4 rounded-md ml-2">İptal</button>
+                    </table>
+                </div>
+                <div class="mt-auto pt-4 flex flex-wrap justify-between items-center gap-2">
+                    <button id="addNewProductToBulkEditListButton" class="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-md">Listeye Yeni Ürün Ekle</button>
+                    <div>
+                        <button id="saveBulkMenuChangesButton" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-md">Değişiklikleri Kaydet ve Sunucuya Gönder</button>
+                        <button id="cancelBulkEditButton" class="bg-gray-500 hover:bg-gray-600 text-white font-semibold py-2 px-4 rounded-md ml-2">İptal</button>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 
    <div id="receiptModal" class="modal fixed inset-0 bg-gray-900 bg-opacity-75 items-center justify-center z-50">
         <div id="receiptModalContent" class="bg-white p-6 md:p-8 rounded-lg shadow-xl w-full max-w-md max-h-[90vh] flex flex-col">
@@ -671,9 +695,9 @@
     const WEBSOCKET_URL = 'wss://isabet-satis.onrender.com'; 
     let socket;
 
-const appState = {
+    const appState = {
         user: null,
-        products: [], // Ürünler başlangıçta boş bir dizi olacak, sunucudan yüklenecek
+        products: [], 
         tables: [],
         currentTableId: null,
         salesReport: [],
@@ -818,9 +842,8 @@ const appState = {
     const saveBulkMenuChangesButton = document.getElementById('saveBulkMenuChangesButton');
     const cancelBulkEditButton = document.getElementById('cancelBulkEditButton');
 
-
-    let productsForBulkEdit = []; // Düzenleme için ürünlerin geçici kopyası
-    let nextNewBulkProductId = -1; 
+    let productsForBulkEdit = []; 
+    let nextNewBulkProductId = 1; 
 
     function formatPrice(price) {
         if (typeof price !== 'number' || isNaN(price)) {
@@ -843,7 +866,7 @@ const appState = {
             const year = date.getFullYear();
             const hours = String(date.getHours()).padStart(2, '0');
             const minutes = String(date.getMinutes()).padStart(2, '0');
-            return `${day}.${month}.${year} ${hours}:${minutes}`;
+            return `<span class="math-inline">\{day\}\.</span>{month}.${year} <span class="math-inline">\{hours\}\:</span>{minutes}`;
         } catch (e) {
             console.error("Timestamp formatlama hatası:", e);
             return '-';
@@ -852,7 +875,7 @@ const appState = {
 
     function getCurrentFormattedDate() {
         const now = new Date();
-        return `${String(now.getDate()).padStart(2, '0')}.${String(now.getMonth() + 1).padStart(2, '0')}.${now.getFullYear()} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+        return `<span class="math-inline">\{String\(now\.getDate\(\)\)\.padStart\(2, '0'\)\}\.</span>{String(now.getMonth() + 1).padStart(2, '0')}.${now.getFullYear()} <span class="math-inline">\{String\(now\.getHours\(\)\)\.padStart\(2, '0'\)\}\:</span>{String(now.getMinutes()).padStart(2, '0')}`;
     }
 
     function showLoading(message = "İşleniyor...") {
@@ -867,7 +890,7 @@ const appState = {
     function sanitizeCategoryForCSS(categoryName) {
         if (!categoryName) return 'default';
         const turkishMap = { 'İ': 'I', 'ı': 'i', 'Ö': 'O', 'ö': 'o', 'Ü': 'U', 'ü': 'u', 'Ş': 'S', 'ş': 's', 'Ğ': 'G', 'ğ': 'g', 'Ç': 'C', 'ç': 'c' };
-        return categoryName
+        return String(categoryName)
             .replace(/[İıÖöÜüŞşĞğÇç]/g, match => turkishMap[match] || match) 
             .replace(/&/g, 'AND') 
             .replace(/\s+/g, '-') 
@@ -886,7 +909,6 @@ const appState = {
             if (storedUser) {
                 try {
                     appState.user = JSON.parse(storedUser);
-                    console.log("Oturum bulundu:", appState.user.username);
                     activeUserNameSpan.textContent = appState.user.username;
                     activeUserRoleSpan.textContent = appState.user.role;
                     loginModal.classList.remove('active');
@@ -895,7 +917,6 @@ const appState = {
                     updateUIForRole();
                     sendMessageToServer('reauthenticate', { user: appState.user }); 
                 } catch (e) {
-                    console.error("localStorage'dan kullanıcı verisi okunamadı:", e);
                     localStorage.removeItem('adisyonUser'); 
                     loginModal.classList.add('active'); 
                     appContainer.classList.add('hidden');
@@ -909,12 +930,11 @@ const appState = {
         };
 
         socket.onmessage = (event) => {
-            console.log("RAW Sunucudan mesaj alındı:", event.data); 
             let message;
             try {
                 message = JSON.parse(event.data);
             } catch (error) {
-                console.error("JSON.parse BAŞARISIZ!", "Hata:", error, "Alınan Veri:", event.data);
+                console.error("JSON.parse hatası:", error, "Alınan veri:", event.data);
                 return; 
             }
             handleServerMessage(message);
@@ -940,20 +960,16 @@ const appState = {
         if (socket && socket.readyState === WebSocket.OPEN) {
             const message = JSON.stringify({ type, payload });
             socket.send(message);
-            console.log("Sunucuya gönderildi:", message);
         } else {
-            console.error("WebSocket bağlantısı açık değil.");
-            if(appState.user && (!socket || socket.readyState === WebSocket.CLOSED)){
-                 console.log("Bağlantı kapalı, yeniden bağlanılıyor...");
-                 setTimeout(() => connectWebSocket(), 1000); 
-            } else if (!appState.user) {
+            console.error("WebSocket bağlantısı açık değil veya kullanıcı yok.");
+             if (!appState.user) {
                  loginModal.classList.add('active');
                  appContainer.classList.add('hidden');
                  orderPageContainer.classList.remove('active');
                  showLoginError("Lütfen önce giriş yapın.");
-            }
-             else {
-                showLoginError("Sunucuya mesaj gönderilemedi. Bağlantı sorunu.");
+            } else if (socket && socket.readyState !== WebSocket.OPEN) {
+                showLoginError("Sunucuya mesaj gönderilemedi. Bağlantı sorunu, yeniden bağlanmayı deneyin.");
+                connectWebSocket(); // Yeniden bağlanmayı dene
             }
         }
     }
@@ -962,17 +978,14 @@ const appState = {
         hideLoading(); 
         switch (message.type) {
             case 'login_success':
-                console.log("LOGIN_SUCCESS işleniyor. Payload:", message.payload);
                 const userDataFromServer = message.payload.user || message.payload.waiter; 
                 if (message.payload && typeof message.payload === 'object' && userDataFromServer && typeof userDataFromServer === 'object') {
                     appState.user = userDataFromServer; 
                     appState.tables = message.payload.tables || []; 
-                    if (message.payload.products) { 
-                        appState.products = message.payload.products;
-                    }
+                    appState.products = message.payload.products || []; 
+                    
                     if (appState.user && typeof appState.user.username !== 'undefined' && typeof appState.user.role !== 'undefined') {
                         localStorage.setItem('adisyonUser', JSON.stringify(appState.user)); 
-
                         activeUserNameSpan.textContent = appState.user.username;
                         activeUserRoleSpan.textContent = appState.user.role;
                         loginModal.classList.remove('active');
@@ -981,10 +994,8 @@ const appState = {
                         loginError.textContent = '';
                         renderInitialData(); 
                         updateUIForRole();
-                        console.log("Giriş başarılı ve kaydedildi:", appState.user.username, "Rol:", appState.user.role);
                     } else {
-                        console.error("Login success, ancak kullanıcı verisi (username/role) eksik/hatalı.", "appState.user:", appState.user);
-                        showLoginError("Giriş bilgileri eksik (kod: CL01_V7).");
+                        showLoginError("Giriş bilgileri eksik (kod: CL01_V8).");
                         appState.user = null; 
                         localStorage.removeItem('adisyonUser'); 
                         loginModal.classList.add('active');
@@ -992,8 +1003,7 @@ const appState = {
                         orderPageContainer.classList.remove('active');
                     }
                 } else {
-                    console.error("Login success mesajı alındı, ancak payload veya kullanıcı verisi (user/waiter) hatalı/eksik.", "Payload:", message.payload);
-                    showLoginError("Sunucudan geçersiz giriş yanıtı (kod: CL02_V7).");
+                    showLoginError("Sunucudan geçersiz giriş yanıtı (kod: CL02_V8).");
                     appState.user = null;
                     localStorage.removeItem('adisyonUser'); 
                     loginModal.classList.add('active');
@@ -1007,31 +1017,25 @@ const appState = {
                 break;
             case 'tables_update':
                 if(appState.user){ 
-                    console.log("[tables_update] Mesaj alındı ve işleniyor. appState.user:", appState.user); 
                     appState.tables = message.payload.tables;
                     renderTables(); 
                     renderInitialDataIfNeeded(); 
-                    
                     if (orderPageContainer.classList.contains('active') && appState.currentTableId) {
                         const updatedTable = appState.tables.find(t => t.id === appState.currentTableId);
                         if (updatedTable) {
                             renderOrderPageForTable(updatedTable); 
                         } else { 
-                            console.log(`Güncellenen masa (${appState.currentTableId}) bulunamadı, masalar ekranına dönülüyor.`);
                             showTablesView();
                         }
                     }
                     if (manageTablesModal.classList.contains('active')) {
                         populateTableSelectsForManagement();
                     }
-                } else {
-                    console.log("[tables_update] Kullanıcı bilgisi (appState.user) henüz set edilmemiş, tables_update işlenmedi.");
                 }
                 break;
             case 'products_update':
                 if (message.payload && message.payload.products) {
                     appState.products = message.payload.products;
-                    console.log("Ana ürün listesi sunucudan güncellendi.");
                     initialDataRendered = false; 
                     renderInitialDataIfNeeded(); 
                     if (orderPageContainer.classList.contains('active') && appState.currentTableId) {
@@ -1044,19 +1048,28 @@ const appState = {
                     if (editProductModal.classList.contains('active')) {
                         populateSelectProductToEdit();
                     }
+                    if (bulkEditMenuModal.classList.contains('active')) {
+                        productsForBulkEdit = JSON.parse(JSON.stringify(appState.products));
+                        renderBulkEditProductList();
+                    }
                 }
                 break;
             case 'main_menu_product_added':
-                alert(message.payload.message || "Yeni ürün menüye eklendi!");
-                break;
-             case 'main_menu_product_updated': 
-                alert(message.payload.message || "Ürün menüde güncellendi!");
-                break;
-            case 'table_operation_success': 
-                alert(message.payload.message || "Masa işlemi başarılı.");
+            case 'main_menu_product_updated':
+            case 'table_operation_success':
+            case 'waiter_operation_success':
+            case 'bulk_update_success':
+                alert(message.payload.message || "İşlem başarılı.");
+                if (message.type === 'waiter_operation_success') {
+                     sendMessageToServer('get_waiters_list', {}); 
+                }
                 break;
             case 'table_operation_fail': 
-                alert(message.payload.error || "Masa işlemi başarısız oldu.");
+            case 'waiter_operation_fail':
+            case 'order_update_fail':
+            case 'manual_order_update_fail':
+            case 'quick_sale_fail':
+                alert(message.payload.error || "İşlem başarısız oldu.");
                 break;
             case 'waiters_list': 
                 if (message.payload && message.payload.waiters) {
@@ -1064,45 +1077,26 @@ const appState = {
                     populateWaiterSelectsForManagement();
                 }
                 break;
-            case 'waiter_operation_success': 
-                alert(message.payload.message || "Garson işlemi başarılı.");
-                sendMessageToServer('get_waiters_list', {}); 
-                break;
-            case 'waiter_operation_fail': 
-                alert(message.payload.error || "Garson işlemi başarısız oldu.");
-                break;
             case 'sales_report_data':
                 appState.salesReport = message.payload.sales || [];
                 renderSalesReport();
                 break;
-            case 'order_update_fail':
-                alert(`Sipariş güncellenemedi: ${message.payload.error}`);
-                break;
-             case 'manual_order_update_fail': 
-                alert(`Manuel ürün eklenemedi: ${message.payload.error}`);
-                break;
             case 'quick_sale_success': 
-                console.log("Hızlı satış sunucuda tamamlandı.");
                 appState.currentQuickSaleOrder = [];
                 renderQuickSaleOrder();
-                break;
-            case 'quick_sale_fail':
-                alert(`Hızlı satış tamamlanamadı: ${message.payload.error}`);
                 break;
             case 'error':
                 alert(`Sunucu Hatası: ${message.payload.message}`);
                 break;
             default:
-                console.warn("Bilinmeyen mesaj tipi:", message.type, "Payload:", message.payload);
+                console.warn("Bilinmeyen mesaj tipi:", message.type);
         }
     }
 
 function openBulkEditMenuModal() {
     if (!appState.user || appState.user.role !== 'cashier') return;
-    
-    // appState.products'ın derin bir kopyasını al
     productsForBulkEdit = JSON.parse(JSON.stringify(appState.products)); 
-    nextNewBulkProductId = -1; // Her açılışta sıfırla
+    nextNewBulkProductId = (appState.products.reduce((max, p) => p.id > max ? p.id : max, 0) || 0) + 1;
     renderBulkEditProductList();
     bulkEditMenuModal.classList.add('active');
 }
@@ -1117,90 +1111,77 @@ function renderBulkEditProductList() {
         const tr = document.createElement('tr');
         tr.innerHTML = `
             <td class="p-1 border">
-                <input type="number" value="${product.id}" class="w-full p-1 border rounded bg-gray-100" readonly title="ID değiştirilemez (var olanlar için)">
-            </td>
-            <td class="p-1 border">
-                <input type="text" value="${product.name}" data-index="${index}" data-field="name" class="bulk-edit-input w-full p-1 border rounded">
-            </td>
-            <td class="p-1 border">
-                <input type="number" value="${product.price.toFixed(2)}" step="0.01" data-index="${index}" data-field="price" class="bulk-edit-input w-full p-1 border rounded">
-            </td>
-            <td class="p-1 border">
-                <input type="text" value="${product.category}" data-index="${index}" data-field="category" class="bulk-edit-input w-full p-1 border rounded">
-            </td>
-            <td class="p-1 border text-center">
-                <button data-index="${index}" class="remove-product-from-bulk-list-btn bg-red-500 hover:bg-red-600 text-white text-xs py-1 px-2 rounded">Sil</button>
+                <input type="number" value="<span class="math-inline">\{product\.id\}" data\-index\="</span>{index}" data-field="id" class="bulk-edit-input w-full p-1 border rounded ${product.id < 0 ? 'bg-yellow-100' : 'bg-gray-100'}" <span class="math-inline">\{product\.id \> 0 ? 'readonly title\="Varolan ID değiştirilemez"' \: 'title\="Yeni Ürün ID"'\} \>
+</td\>
+<td class\="p\-1 border"\>
+<input type\="text" value\="</span>{product.name}" data-index="<span class="math-inline">\{index\}" data\-field\="name" class\="bulk\-edit\-input w\-full p\-1 border rounded"\>
+</td\>
+<td class\="p\-1 border"\>
+<input type\="number" value\="</span>{parseFloat(product.price || 0).toFixed(2)}" step="0.01" data-index="<span class="math-inline">\{index\}" data\-field\="price" class\="bulk\-edit\-input w\-full p\-1 border rounded"\>
+</td\>
+<td class\="p\-1 border"\>
+<input type\="text" value\="</span>{product.category || ''}" data-index="<span class="math-inline">\{index\}" data\-field\="category" class\="bulk\-edit\-input w\-full p\-1 border rounded"\>
+</td\>
+<td class\="p\-1 border text\-center"\>
+<button data\-index\="</span>{index}" class="remove-product-from-bulk-list-btn bg-red-500 hover:bg-red-600 text-white text-xs py-1 px-2 rounded">Sil</button>
             </td>
         `;
         bulkEditProductListBody.appendChild(tr);
     });
 
-    // Input değişikliklerini yakala
     document.querySelectorAll('.bulk-edit-input').forEach(input => {
-        input.addEventListener('change', (e) => {
+        input.addEventListener('input', (e) => { // change yerine input daha anlık olur
             const index = parseInt(e.target.dataset.index);
             const field = e.target.dataset.field;
             let value = e.target.value;
-            if (field === 'price') value = parseFloat(value);
-            if (field === 'id' && productsForBulkEdit[index].id > 0) return; // Var olan ID'yi değiştirmeyi engelle (opsiyonel)
+            if (field === 'price') value = parseFloat(value) || 0;
+            else if (field === 'id') value = parseInt(value) || 0;
             
-            productsForBulkEdit[index][field] = value;
+            if (productsForBulkEdit[index]) {
+                 productsForBulkEdit[index][field] = value;
+            }
         });
     });
 
-    // Silme butonlarını yakala
     document.querySelectorAll('.remove-product-from-bulk-list-btn').forEach(button => {
         button.addEventListener('click', (e) => {
             const index = parseInt(e.target.dataset.index);
             productsForBulkEdit.splice(index, 1);
-            renderBulkEditProductList(); // Listeyi yeniden çiz
+            renderBulkEditProductList(); 
         });
     });
 }
 
-// Listeye yeni boş ürün satırı ekleme
 addNewProductToBulkEditListButton.addEventListener('click', () => {
-    const newId = nextNewBulkProductId--; // Yeni ürünler için geçici negatif ID
-                                        // Sunucu tarafı bu ID'leri dikkate almayıp kendi ID'lerini üretebilir
-                                        // VEYA istemcinin en yüksek ID'yi bulup +1 ile göndermesi beklenebilir.
-                                        // Şimdilik basit tutuyoruz, sunucu tüm listeyi alıp ID'leri yeniden düzenleyebilir veya var olanları koruyabilir.
-                                        // Önemli: Eğer DB'de ID'ler SERIAL ise, yeni ürünler için ID göndermemek daha iyi.
-                                        // Bu örnekte server.js'deki bulk update, client'tan gelen ID'yi kullanıyor.
-                                        // Eğer client'ta ID yoksa (0 veya null) server yeni ID atayabilir.
-                                        // Ya da buradaki ID'yi sunucuya göndermeyip, sunucunun yeni ID'ler atamasını sağlayabiliriz.
-                                        // Mevcut sunucu, gelen ID'yi kullanmaya çalışacak. Bu ID'nin DB'de unique olması gerekir.
-                                        // Veya en güvenlisi, sunucuya ID'siz gönderip, sunucunun yeni ürünlere DB'den ID almasını sağlamak.
-                                        // Şimdilik, sunucunun client ID'sini kullandığını varsayalım ve çakışma olmaması için
-                                        // kullanıcının dikkatli olması gerektiğini belirtelim veya sunucuda ID yönetimini daha karmaşık hale getirelim.
-                                        // En basit çözüm: appState.products'taki en yüksek ID'yi bulup +1 ile başlamak.
     let maxId = 0;
-    appState.products.forEach(p => { if (p.id > maxId) maxId = p.id; });
     productsForBulkEdit.forEach(p => { if (p.id > maxId) maxId = p.id; });
-
+    appState.products.forEach(p => { if (p.id > maxId) maxId = p.id; }); // Mevcut state'deki max ID'yi de kontrol et
 
     productsForBulkEdit.push({
-        id: maxId + 1, // Geçici veya kalıcı ID (sunucu tarafı nasıl işleyeceğine bağlı)
+        id: maxId + 1, 
         name: '',
         price: 0,
         category: ''
     });
     renderBulkEditProductList();
-    // Son eklenen satıra odaklanabiliriz
     const lastRowInputs = bulkEditProductListBody.lastElementChild.querySelectorAll('input');
-    if(lastRowInputs.length > 1) lastRowInputs[1].focus(); // Ad alanına odaklan
+    if(lastRowInputs.length > 1) lastRowInputs[1].focus(); 
 });
 
-
-// Değişiklikleri sunucuya gönderme
 saveBulkMenuChangesButton.addEventListener('click', () => {
-    // Temel doğrulama
-    const isValid = productsForBulkEdit.every(p => p.name && p.price != null && p.category && p.id != null);
+    const finalProductList = productsForBulkEdit.map(p => ({
+        id: parseInt(p.id),
+        name: String(p.name).trim(),
+        price: parseFloat(p.price) || 0,
+        category: String(p.category || 'DİĞER').trim().toUpperCase()
+    }));
+
+    const isValid = finalProductList.every(p => p.id && p.name && p.price >= 0 && p.category);
     if (!isValid) {
-        alert("Lütfen tüm ürünlerin Ad, Fiyat, Kategori ve ID bilgilerini eksiksiz girin.");
+        alert("Lütfen tüm ürünlerin Ad, Fiyat, Kategori ve geçerli ID bilgilerini eksiksiz girin.");
         return;
     }
-    // ID'lerin benzersizliğini kontrol et (opsiyonel ama önemli)
-    const ids = productsForBulkEdit.map(p => p.id);
+    const ids = finalProductList.map(p => p.id);
     const uniqueIds = new Set(ids);
     if (ids.length !== uniqueIds.size) {
         alert("Ürün ID'leri benzersiz olmalıdır. Lütfen ID'leri kontrol edin.");
@@ -1209,31 +1190,27 @@ saveBulkMenuChangesButton.addEventListener('click', () => {
 
     if (confirm("Tüm menü güncellenecek ve veritabanına kaydedilecek. Emin misiniz?")) {
         showLoading("Menü güncelleniyor...");
-        sendMessageToServer('bulk_update_products', { products: productsForBulkEdit });
-        closeBulkEditMenuModal(); // Modalı kapat
+        sendMessageToServer('bulk_update_products', { products: finalProductList });
+        closeBulkEditMenuModal(); 
     }
 });
 
-// İptal butonu
-cancelBulkEditButton.addEventListener('click', closeBulkEditMenuModal);
-
-// Ana butonlara event listener ekleme
+if (cancelBulkEditButton) {
+    cancelBulkEditButton.addEventListener('click', closeBulkEditMenuModal);
+}
 if (bulkEditMenuButton) {
     bulkEditMenuButton.addEventListener('click', openBulkEditMenuModal);
 }
 if (closeBulkEditMenuModalButton) {
     closeBulkEditMenuModalButton.addEventListener('click', closeBulkEditMenuModal);
 }
-
-
-    
     
     function showLoginError(message) {
         loginError.textContent = message;
         passwordInput.value = ''; 
     }
 
-    function updateUIForRole() {
+function updateUIForRole() {
     if (!appState.user) return;
 
     const cashierOnlyElements = [
@@ -1247,52 +1224,44 @@ if (closeBulkEditMenuModalButton) {
         finalizeAndCloseTableButton,
         showReceiptButton, 
         applyDiscountButton, 
-        applyQuickSaleDiscountButton
-    ];
-    
-    const bulkEditMenuButton = document.getElementById('bulkEditMenuButton');
-    if (bulkEditMenuButton) cashierOnlyElements.push(bulkEditMenuButton);
-
+        applyQuickSaleDiscountButton,
+        document.getElementById('bulkEditMenuButton') 
+    ].filter(el => el); 
 
     if (appState.user.role === 'cashier') {
-        cashierOnlyElements.forEach(el => {
-            if (el) el.classList.remove('hidden');
-        });
+        cashierOnlyElements.forEach(el => el.classList.remove('hidden'));
         if (salesReportButton) salesReportButton.textContent = "Satış Raporlama";
     } else {
-        cashierOnlyElements.forEach(el => {
-            if (el) el.classList.add('hidden');
-        });
+        cashierOnlyElements.forEach(el => el.classList.add('hidden'));
     }
     if (logoutButton) logoutButton.textContent = "Uygulamadan Çık";
 }
     
     let initialDataRendered = false;
     function renderInitialDataIfNeeded() {
-        if (!initialDataRendered || appState.products.length > 0) { 
+        if ((!initialDataRendered && appState.products.length > 0) || (initialDataRendered && appState.products.length === 0) || !initialDataRendered) { 
             renderProductGrid(orderPageProductGrid, false); 
             renderProductGrid(quickSaleProductGrid, true); 
             renderProductsForReference();
             populateManualCategorySelect(); 
             populateNewProductCategorySelect(); 
             populateEditProductCategorySelect(); 
-            initialDataRendered = true;
-            console.log("İlk data render edildi (ürün grid, referans, kategori select).");
+            if (appState.products.length > 0) initialDataRendered = true;
         }
     }
 
     function renderInitialData() {
+        renderTables(); 
         renderInitialDataIfNeeded(); 
     }
 
     function renderTables() {
-        console.log("[renderTables] Fonksiyon çağrıldı. Masa sayısı:", appState.tables ? appState.tables.length : 0); 
         tablesGrid.innerHTML = '';
         if (!appState.tables || appState.tables.length === 0) {
-             tablesGrid.innerHTML = '<p class="col-span-full text-center text-gray-500">Masa bilgisi bekleniyor...</p>';
+             tablesGrid.innerHTML = '<p class="col-span-full text-center text-gray-500">Masa tanımı yok. Kasa yetkisiyle ekleyin.</p>';
              return;
         }
-        appState.tables.forEach(table => {
+        appState.tables.sort((a,b) => a.name.localeCompare(b.name, 'tr', {numeric: true})).forEach(table => {
             const tableCard = document.createElement('div');
             const isDolu = table.status === 'dolu' && table.order && table.order.length > 0;
             
@@ -1310,8 +1279,8 @@ if (closeBulkEditMenuModalButton) {
                 waiterInfoHtml = `<p class="text-xs text-white text-center mt-1">Garson: ${table.waiterUsername}</p>`;
             }
             tableCard.innerHTML = `
-                <h3 class="text-xl font-semibold text-white text-center">${table.name}</h3>
-                <p class="text-sm text-white text-center capitalize">${isDolu ? 'Dolu' : 'Boş'}</p>
+                <h3 class="text-xl font-semibold text-white text-center"><span class="math-inline">\{table\.name\}</h3\>
+<p class\="text\-sm text\-white text\-center capitalize"\></span>{isDolu ? 'Dolu' : 'Boş'}</p>
                 ${isDolu ? `<p class="text-xs text-white text-center mt-1">Toplam: ${formatPrice(table.total)}</p>` : ''}
                 ${waiterInfoHtml}
             `;
@@ -1320,47 +1289,46 @@ if (closeBulkEditMenuModalButton) {
         });
     }
 
-    function renderProductGrid(targetGridElement = orderPageProductGrid, forQuickSale = false) {
+    function renderProductGrid(targetGridElement, forQuickSale = false) {
         targetGridElement.innerHTML = ''; 
+        if (!appState.products || appState.products.length === 0) {
+            targetGridElement.innerHTML = `<p class="text-gray-500 text-center py-4">${forQuickSale ? 'Hızlı satış için ' : ''}Menü boş. Kasa yetkisiyle ürün ekleyin.</p>`;
+            return;
+        }
+
         const categories = {};
         const categorySectionColors = { 
-            "ET - TAVUK": "category-section-bg-ET-TAVUK",
-            "ATIŞTIRMALIK": "category-section-bg-ATIŞTIRMALIK",
-            "TATLI": "category-section-bg-TATLI",
-            "İÇECEK": "category-section-bg-İÇECEK",
-            "ÇORBA": "category-section-bg-ÇORBA",
+            "ET - TAVUK": "category-section-bg-ET-TAVUK", "ATIŞTIRMALIK": "category-section-bg-ATIŞTIRMALIK",
+            "TATLI": "category-section-bg-TATLI", "İÇECEK": "category-section-bg-İÇECEK",
+            "ÇORBA": "category-section-bg-ÇORBA", "DİĞER": "category-section-bg-DİĞER"
         };
         const productCardColors = {
-            "ET - TAVUK": "product-card-bg-ET-TAVUK",
-            "ATIŞTIRMALIK": "product-card-bg-ATIŞTIRMALIK",
-            "TATLI": "product-card-bg-TATLI",
-            "İÇECEK": "product-card-bg-İÇECEK",
-            "ÇORBA": "product-card-bg-ÇORBA",
+            "ET - TAVUK": "product-card-bg-ET-TAVUK", "ATIŞTIRMALIK": "product-card-bg-ATIŞTIRMALIK",
+            "TATLI": "product-card-bg-TATLI", "İÇECEK": "product-card-bg-İÇECEK",
+            "ÇORBA": "product-card-bg-ÇORBA", "DİĞER": "product-card-bg-DİĞER"
         };
         const defaultSectionColor = "category-section-bg-default";
         const defaultCardColor = "product-card-bg-default";
 
         appState.products.forEach(product => {
-             const categoryKey = product.category; 
+             const categoryKey = product.category ? product.category.toUpperCase() : 'DİĞER'; 
             if (!categories[categoryKey]) {
                 categories[categoryKey] = [];
             }
             categories[categoryKey].push(product);
         });
         
-        const categoryOrder = ["ÇORBA", "ET - TAVUK", "ATIŞTIRMALIK", "İÇECEK", "TATLI"];
+        const categoryOrder = ["ÇORBA", "ET - TAVUK", "ATIŞTIRMALIK", "İÇECEK", "TATLI", "DİĞER"];
         const sortedCategories = Object.keys(categories).sort((a, b) => {
             const indexA = categoryOrder.indexOf(a);
             const indexB = categoryOrder.indexOf(b);
-            if (indexA === -1 && indexB === -1) return a.localeCompare(b, 'tr'); 
-            if (indexA === -1) return 1;
-            if (indexB === -1) return -1;
-            return indexA - indexB;
+            if (indexA !== -1 && indexB !== -1) return indexA - indexB;
+            if (indexA !== -1) return -1;
+            if (indexB !== -1) return 1;
+            return a.localeCompare(b, 'tr');
         });
 
         sortedCategories.forEach(category => {
-            if (!categoryOrder.includes(category)) return; 
-
             const categorySection = document.createElement('div');
             const sectionBgColorClass = categorySectionColors[category] || defaultSectionColor; 
             categorySection.className = `mb-6 p-4 rounded-lg ${sectionBgColorClass}`; 
@@ -1370,10 +1338,10 @@ if (closeBulkEditMenuModalButton) {
             categoryTitle.textContent = category;
             categorySection.appendChild(categoryTitle);
 
-            const productGrid = document.createElement('div');
-            productGrid.className = forQuickSale ? 'grid grid-cols-3 sm:grid-cols-5 gap-2' : 'grid grid-cols-2 md:grid-cols-3 gap-3'; 
+            const productGridInner = document.createElement('div');
+            productGridInner.className = forQuickSale ? 'grid grid-cols-3 sm:grid-cols-5 gap-2' : 'grid grid-cols-2 md:grid-cols-3 gap-3'; 
 
-            categories[category].sort((a, b) => a.name.localeCompare(b, 'tr')).forEach(product => {
+            categories[category].sort((a, b) => a.name.localeCompare(b.name, 'tr')).forEach(product => {
                 const card = document.createElement('div');
                 const cardBgColorClass = productCardColors[category] || defaultCardColor; 
                 card.className = `product-card ${cardBgColorClass} ${forQuickSale ? 'quick-sale-card' : ''}`; 
@@ -1387,8 +1355,8 @@ if (closeBulkEditMenuModalButton) {
                 } else {
                     card.innerHTML = `
                         <div>
-                            <h5 class="font-semibold text-sm text-gray-800">${product.name}</h5>
-                            <p class="product-price text-xs text-gray-600">${formatPrice(product.price)}</p>
+                            <h5 class="font-semibold text-sm text-gray-800"><span class="math-inline">\{product\.name\}</h5\>
+<p class\="product\-price text\-xs text\-gray\-600"\></span>{formatPrice(product.price)}</p>
                         </div>
                         <div class="mt-2">
                             <input type="text" placeholder="Açıklama..." class="description-input border border-gray-300 rounded text-xs p-1 w-full mb-2">
@@ -1401,10 +1369,10 @@ if (closeBulkEditMenuModalButton) {
                         <button data-for-quick-sale="false" class="add-item-from-card-btn bg-blue-500 hover:bg-blue-600 text-white text-xs font-semibold py-1 px-2 rounded w-full mt-2">Ekle</button>
                     `;
                 }
-                productGrid.appendChild(card);
+                productGridInner.appendChild(card);
             });
 
-            categorySection.appendChild(productGrid);
+            categorySection.appendChild(productGridInner);
             targetGridElement.appendChild(categorySection);
         });
         addProductCardEventListeners(forQuickSale); 
@@ -1414,35 +1382,48 @@ if (closeBulkEditMenuModalButton) {
         const selector = forQuickSale ? '#quickSaleProductGrid .product-card' : '#orderPageProductGrid .product-card';
         document.querySelectorAll(selector).forEach(card => {
             const addBtn = card.querySelector('.add-item-from-card-btn');
+            if (!addBtn) return;
             const productId = card.dataset.productId;
 
-            if (forQuickSale) { 
-                addBtn.addEventListener('click', () => {
+            addBtn.removeEventListener('click', addBtn._clickHandler); // Önceki listener'ı kaldır
+
+            addBtn._clickHandler = () => { // Yeni handler'ı özelliğe ata
+                if (forQuickSale) { 
                     addProductToQuickSale(productId, 1, ''); 
-                });
-            } else { 
-                const quantityInput = card.querySelector('.quantity-input');
-                const decreaseBtn = card.querySelector('.quantity-decrease');
-                const increaseBtn = card.querySelector('.quantity-increase');
-                const descriptionInput = card.querySelector('.description-input'); 
-            
-                decreaseBtn.addEventListener('click', () => {
-                    let currentQuantity = parseInt(quantityInput.value);
-                    if (currentQuantity > 1) {
-                        quantityInput.value = currentQuantity - 1;
-                    }
-                });
-
-                increaseBtn.addEventListener('click', () => {
-                    quantityInput.value = parseInt(quantityInput.value) + 1;
-                });
-
-                addBtn.addEventListener('click', () => {
+                } else { 
+                    const quantityInput = card.querySelector('.quantity-input');
+                    const descriptionInput = card.querySelector('.description-input'); 
                     const descValue = descriptionInput ? descriptionInput.value.trim() : '';
                     addProductFromCard(productId, parseInt(quantityInput.value), descValue);
                     quantityInput.value = 1;
                     if (descriptionInput) descriptionInput.value = '';
-                });
+                }
+            };
+            addBtn.addEventListener('click', addBtn._clickHandler);
+
+            if (!forQuickSale) { 
+                const quantityInput = card.querySelector('.quantity-input');
+                const decreaseBtn = card.querySelector('.quantity-decrease');
+                const increaseBtn = card.querySelector('.quantity-increase');
+            
+                if (decreaseBtn) {
+                    decreaseBtn.removeEventListener('click', decreaseBtn._clickHandler);
+                    decreaseBtn._clickHandler = () => {
+                        let currentQuantity = parseInt(quantityInput.value);
+                        if (currentQuantity > 1) {
+                            quantityInput.value = currentQuantity - 1;
+                        }
+                    };
+                    decreaseBtn.addEventListener('click', decreaseBtn._clickHandler);
+                }
+
+                if (increaseBtn) {
+                    increaseBtn.removeEventListener('click', increaseBtn._clickHandler);
+                    increaseBtn._clickHandler = () => {
+                        quantityInput.value = parseInt(quantityInput.value) + 1;
+                    };
+                    increaseBtn.addEventListener('click', increaseBtn._clickHandler);
+                }
             }
         });
     }
@@ -1504,12 +1485,12 @@ if (closeBulkEditMenuModalButton) {
                 let descriptionHTML = item.description ? `<p class="text-xs text-gray-500"><em>${item.description}</em></p>` : '';
                 itemDiv.innerHTML = `
                     <div>
-                        <span class="font-medium">${item.name}</span>
-                        <span class="text-xs text-gray-500"> (${item.quantity} x ${formatPrice(item.priceAtOrder)})</span>
-                        ${descriptionHTML}
-                    </div>
-                    <div class="flex items-center">
-                        <span class="font-semibold mr-2">${formatPrice(itemTotal)}</span>
+                        <span class="font-medium"><span class="math-inline">\{item\.name\}</span\>
+<span class\="text\-xs text\-gray\-500"\> \(</span>{item.quantity} x ${formatPrice(item.priceAtOrder)})</span>
+                        <span class="math-inline">\{descriptionHTML\}
+</div\>
+<div class\="flex items\-center"\>
+<span class\="font\-semibold mr\-2"\></span>{formatPrice(itemTotal)}</span>
                         <button data-index="${index}" class="remove-item-quick-sale-btn text-red-500 hover:text-red-700 text-xs p-1">X</button>
                     </div>
                 `;
@@ -1529,30 +1510,47 @@ if (closeBulkEditMenuModalButton) {
         }
 
         document.querySelectorAll('.remove-item-quick-sale-btn').forEach(button => {
-            button.addEventListener('click', (e) => {
+            button.removeEventListener('click', button._clickHandlerQs);
+            button._clickHandlerQs = (e) => {
                 const itemIndex = parseInt(e.target.dataset.index);
                 appState.currentQuickSaleOrder.splice(itemIndex, 1);
                 resetCurrentOrderDiscount(); 
                 renderQuickSaleOrder();
-            });
+            };
+            button.addEventListener('click', button._clickHandlerQs);
         });
+    }
+
+    function getUniqueCategoriesFromAppState() {
+        return appState.products && appState.products.length > 0
+            ? [...new Set(appState.products.map(p => (p.category || 'DİĞER').toUpperCase()))].sort((a,b) => a.localeCompare(b, 'tr'))
+            : [];
     }
 
     function populateManualCategorySelect() {
         manualProductCategory.innerHTML = '<option value="">Kategori Seçin</option>'; 
-        const categories = ["ET - TAVUK", "ATIŞTIRMALIK", "İÇECEK", "TATLI", "ÇORBA"]; 
-        categories.forEach(category => {
+        const uniqueCategories = getUniqueCategoriesFromAppState();
+        uniqueCategories.forEach(category => {
             const option = document.createElement('option');
             option.value = category;
             option.textContent = category;
             manualProductCategory.appendChild(option);
         });
+         if (uniqueCategories.length === 0) { // Eğer hiç kategori yoksa, en azından temel kategorileri ekleyelim
+            const defaultCategories = ["ET - TAVUK", "ATIŞTIRMALIK", "İÇECEK", "TATLI", "ÇORBA", "DİĞER"];
+             defaultCategories.forEach(category => {
+                const option = document.createElement('option');
+                option.value = category;
+                option.textContent = category;
+                manualProductCategory.appendChild(option);
+            });
+        }
     }
     
     function populateNewProductCategorySelect() {
         newProductCategorySelect.innerHTML = '<option value="">Mevcut Kategori Seçin</option>';
-        const categories = ["ET - TAVUK", "ATIŞTIRMALIK", "İÇECEK", "TATLI", "ÇORBA"]; 
-        categories.forEach(category => {
+        const uniqueCategories = getUniqueCategoriesFromAppState();
+        uniqueCategories.forEach(category => {
             const option = document.createElement('option');
             option.value = category;
             option.textContent = category;
@@ -1560,7 +1558,8 @@ if (closeBulkEditMenuModalButton) {
         });
         newProductCategorySelect.innerHTML += '<option value="YENI">** YENİ KATEGORİ **</option>';
         
-        newProductCategorySelect.addEventListener('change', () => {
+        newProductCategorySelect.removeEventListener('change', newProductCategorySelect._changeHandlerN);
+        newProductCategorySelect._changeHandlerN = () => {
             if (newProductCategorySelect.value === 'YENI') {
                 newProductCategoryInput.classList.remove('hidden');
                 newProductCategoryInput.focus();
@@ -1568,13 +1567,14 @@ if (closeBulkEditMenuModalButton) {
                 newProductCategoryInput.classList.add('hidden');
                 newProductCategoryInput.value = '';
             }
-        });
+        };
+        newProductCategorySelect.addEventListener('change', newProductCategorySelect._changeHandlerN);
     }
     
     function populateEditProductCategorySelect() {
         editProductCategorySelect.innerHTML = '<option value="">Mevcut Kategori Seçin</option>';
-        const categories = ["ET - TAVUK", "ATIŞTIRMALIK", "İÇECEK", "TATLI", "ÇORBA"]; 
-        categories.forEach(category => {
+        const uniqueCategories = getUniqueCategoriesFromAppState();
+        uniqueCategories.forEach(category => {
             const option = document.createElement('option');
             option.value = category;
             option.textContent = category;
@@ -1582,7 +1582,8 @@ if (closeBulkEditMenuModalButton) {
         });
         editProductCategorySelect.innerHTML += '<option value="YENI_EDIT">** YENİ KATEGORİ **</option>'; 
         
-        editProductCategorySelect.addEventListener('change', () => {
+        editProductCategorySelect.removeEventListener('change', editProductCategorySelect._changeHandlerE);
+        editProductCategorySelect._changeHandlerE = () => {
             if (editProductCategorySelect.value === 'YENI_EDIT') {
                 editProductCategoryInput.classList.remove('hidden');
                 editProductCategoryInput.focus();
@@ -1590,41 +1591,44 @@ if (closeBulkEditMenuModalButton) {
                 editProductCategoryInput.classList.add('hidden');
                 editProductCategoryInput.value = '';
             }
-        });
+        };
+        editProductCategorySelect.addEventListener('change', editProductCategorySelect._changeHandlerE);
     }
 
     function renderProductsForReference() {
         productsListRef.innerHTML = '';
+        if (!appState.products || appState.products.length === 0) {
+            productsListRef.innerHTML = '<p class="text-gray-500">Menü boş. Kasa yetkisiyle "Menüyü Toplu Düzenle" seçeneğini kullanın.</p>';
+            return;
+        }
         const categories = {};
         appState.products.forEach(product => {
-             const categoryKey = product.category; 
+             const categoryKey = (product.category || 'DİĞER').toUpperCase(); 
             if (!categories[categoryKey]) categories[categoryKey] = [];
             categories[categoryKey].push(product);
         });
 
-        const categoryOrder = ["ÇORBA", "ET - TAVUK", "ATIŞTIRMALIK", "İÇECEK", "TATLI"];
+        const categoryOrder = ["ÇORBA", "ET - TAVUK", "ATIŞTIRMALIK", "İÇECEK", "TATLI", "DİĞER"];
         const sortedCategories = Object.keys(categories).sort((a, b) => {
             const indexA = categoryOrder.indexOf(a);
             const indexB = categoryOrder.indexOf(b);
-            if (indexA === -1 && indexB === -1) return a.localeCompare(b, 'tr'); 
-            if (indexA === -1) return 1;
-            if (indexB === -1) return -1;
-            return indexA - indexB;
+            if (indexA !== -1 && indexB !== -1) return indexA - indexB;
+            if (indexA !== -1) return -1;
+            if (indexB !== -1) return 1;
+            return a.localeCompare(b, 'tr');
         });
 
         sortedCategories.forEach(category => {
-            if (!categoryOrder.includes(category)) return; 
-
             const categoryTitle = document.createElement('h3');
             categoryTitle.className = 'text-lg font-semibold mt-4 mb-2 text-blue-700';
             categoryTitle.textContent = category;
             productsListRef.appendChild(categoryTitle);
             const ul = document.createElement('ul');
             ul.className = 'space-y-1';
-            categories[category].sort((a,b) => a.name.localeCompare(b, 'tr')).forEach(product => {
+            categories[category].sort((a,b) => a.name.localeCompare(b.name, 'tr')).forEach(product => {
                 const li = document.createElement('li');
                 li.className = 'text-sm text-gray-800 flex justify-between';
-                li.innerHTML = `<span>${product.name}</span> <span class="font-medium">${formatPrice(product.price)}</span>`;
+                li.innerHTML = `<span><span class="math-inline">\{product\.name\}</span\> <span class\="font\-medium"\></span>{formatPrice(product.price)}</span>`;
                 ul.appendChild(li);
             });
             productsListRef.appendChild(ul);
@@ -1657,9 +1661,11 @@ if (closeBulkEditMenuModalButton) {
                 
                 let itemName = item.name || 'Bilinmeyen Ürün'; 
                 let itemPrice = item.priceAtOrder || 0; 
-                const productDetails = appState.products.find(p => p.id === item.productId); 
-                if(productDetails && !item.name) { 
-                    itemName = productDetails.name;
+                if (item.productId && String(item.productId).startsWith && !String(item.productId).startsWith('manual-')) {
+                    const productDetails = appState.products.find(p => p.id === parseInt(item.productId)); 
+                    if(productDetails && !item.nameFromOrder) { 
+                        itemName = productDetails.name;
+                    }
                 }
                 
                 let descriptionHTML = '';
@@ -1669,19 +1675,19 @@ if (closeBulkEditMenuModalButton) {
                 
                 let waiterNameHTML = '';
                  if (item.waiterUsername) {
-                     waiterNameHTML = `<p class="text-xs text-blue-500 pl-1 mt-1">Ekleyen: ${item.waiterUsername} (${formatTimestamp(item.timestamp)})</p>`; 
+                     waiterNameHTML = `<p class="text-xs text-blue-500 pl-1 mt-1">Ekleyen: <span class="math-inline">\{item\.waiterUsername\} \(</span>{formatTimestamp(item.timestamp)})</p>`; 
                  }
 
                 orderItemDiv.innerHTML = `
                     <div class="flex-grow">
-                        <span class="font-medium">${itemName}</span>
-                        <span class="text-sm text-gray-600"> (${item.quantity} x ${formatPrice(itemPrice)})</span>
+                        <span class="font-medium"><span class="math-inline">\{itemName\}</span\>
+<span class\="text\-sm text\-gray\-600"\> \(</span>{item.quantity} x ${formatPrice(itemPrice)})</span>
                         ${descriptionHTML}
-                        ${waiterNameHTML} 
-                    </div>
-                    <div class="flex items-center ml-2">
-                        <span class="font-semibold mr-3">${formatPrice(item.quantity * itemPrice)}</span>
-                        <button data-product-id="${item.productId || 'manual'}" data-item-name="${itemName}" data-item-description="${item.description || ''}" class="remove-item-btn-orderpage text-red-500 hover:text-red-700 text-sm font-bold p-1 rounded-full bg-red-100 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-red-400">X</button>
+                        <span class="math-inline">\{waiterNameHTML\} 
+</div\>
+<div class\="flex items\-center ml\-2"\>
+<span class\="font\-semibold mr\-3"\></span>{formatPrice(item.quantity * itemPrice)}</span>
+                        <button data-product-id="<span class="math-inline">\{item\.productId \|\| 'manual'\}" data\-item\-name\="</span>{itemName}" data-item-description="${item.description || ''}" class="remove-item-btn-orderpage text-red-500 hover:text-red-700 text-sm font-bold p-1 rounded-full bg-red-100 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-red-400">X</button>
                     </div>
                 `;
                 orderPageCurrentOrderItems.appendChild(orderItemDiv);
@@ -1710,13 +1716,15 @@ if (closeBulkEditMenuModalButton) {
         }
 
         document.querySelectorAll('.remove-item-btn-orderpage').forEach(button => {
-            button.addEventListener('click', (e) => {
+            button.removeEventListener('click', button._clickHandlerOrder);
+            button._clickHandlerOrder = (e) => {
                 const buttonElement = e.target.closest('button');
                 const productIdToRemove = buttonElement.dataset.productId; 
                 const descriptionToRemove = buttonElement.dataset.description; 
                 const nameToRemove = buttonElement.dataset.itemName; 
                 removeItemFromOrderPage(productIdToRemove, descriptionToRemove, nameToRemove); 
-            });
+            };
+            button.addEventListener('click', button._clickHandlerOrder);
         });
     }
 
@@ -1753,26 +1761,30 @@ if (closeBulkEditMenuModalButton) {
         `;
         const tbody = table.querySelector('tbody');
 
-        appState.salesReport.sort((a, b) => (b.closingTimestamp || 0) - (a.closingTimestamp || 0)); 
+        appState.salesReport.sort((a, b) => new Date(b.closingTimestamp).getTime() - new Date(a.closingTimestamp).getTime()); 
 
         appState.salesReport.forEach(item => {
-            const itemTotal = (item.priceAtOrder || 0) * item.quantity;
+            const itemTotal = (parseFloat(item.priceAtOrder) || 0) * item.quantity;
             totalItems += item.quantity;
             grandTotal += itemTotal;
             
-            let itemName = item.name || (appState.products.find(p=>p.id === item.productId)?.name || 'Bilinmeyen');
+            let itemName = item.name || 'Bilinmeyen Ürün';
+            if(item.productId && String(item.productId).startsWith && !String(item.productId).startsWith('manual-')) {
+                const productDetails = appState.products.find(p => String(p.id) === String(item.productId));
+                if (productDetails) itemName = productDetails.name;
+            }
 
             const tr = document.createElement('tr');
             tr.className = 'border-b hover:bg-gray-50';
             tr.innerHTML = `
-                <td class="border p-2 whitespace-nowrap">${formatTimestamp(item.closingTimestamp)}</td>
-                <td class="border p-2">${item.tableName || 'Hızlı Satış'}</td>
-                <td class="border p-2">${itemName}</td>
-                <td class="border p-2 text-center">${item.quantity}</td>
-                <td class="border p-2 text-right">${formatPrice(item.priceAtOrder || 0)}</td>
-                <td class="border p-2 text-right">${formatPrice(itemTotal)}</td>
-                <td class="border p-2">${item.waiterUsername || '-'}</td>
-                <td class="border p-2">${item.description || '-'}</td>
+                <td class="border p-2 whitespace-nowrap"><span class="math-inline">\{formatTimestamp\(item\.closingTimestamp\)\}</td\>
+<td class\="border p\-2"\></span>{item.tableName || 'Hızlı Satış'}</td>
+                <td class="border p-2"><span class="math-inline">\{itemName\}</td\>
+<td class\="border p\-2 text\-center"\></span>{item.quantity}</td>
+                <td class="border p-2 text-right"><span class="math-inline">\{formatPrice\(parseFloat\(item\.priceAtOrder\) \|\| 0\)\}</td\>
+<td class\="border p\-2 text\-right"\></span>{formatPrice(itemTotal)}</td>
+                <td class="border p-2"><span class="math-inline">\{item\.closedBy \|\| item\.waiterUsername \|\| '\-'\}</td\>
+<td class\="border p\-2"\></span>{item.description || '-'}</td>
                 <td class="border p-2 whitespace-nowrap">${formatTimestamp(item.timestamp)}</td> 
             `;
             tbody.appendChild(tr);
@@ -1800,13 +1812,17 @@ if (closeBulkEditMenuModalButton) {
         sendMessageToServer('logout', {});
         appState.user = null;
         appState.tables = [];
+        appState.products = [];
+        appState.salesReport = [];
+        appState.currentQuickSaleOrder = [];
+        appState.waiters = [];
+
         loginModal.classList.add('active');
         appContainer.classList.add('hidden');
         orderPageContainer.classList.remove('active'); 
         quickSaleModal.classList.remove('active'); 
         usernameInput.value = '';
         passwordInput.value = '';
-        console.log("Çıkış yapıldı ve oturum temizlendi.");
         initialDataRendered = false; 
     }
 
@@ -1829,7 +1845,6 @@ if (closeBulkEditMenuModalButton) {
             appContainer.classList.add('hidden'); 
             orderPageContainer.classList.add('active'); 
         } else {
-            console.error("Seçilen masa bulunamadı:", tableId);
             showTablesView(); 
         }
     }
@@ -1874,8 +1889,8 @@ if (closeBulkEditMenuModalButton) {
         showLoading("Ürün siliniyor...");
         sendMessageToServer('remove_order_item', {
             tableId: appState.currentTableId,
-            productId: productIdToRemove === 'manual' ? null : parseInt(productIdToRemove), 
-            name: productIdToRemove === 'manual' ? nameToRemove : null, 
+            productId: String(productIdToRemove).startsWith('manual-') ? null : parseInt(productIdToRemove), 
+            name: String(productIdToRemove).startsWith('manual-') ? nameToRemove : null, 
             description: descriptionToRemove 
         });
         resetCurrentOrderDiscount(); 
@@ -1884,7 +1899,13 @@ if (closeBulkEditMenuModalButton) {
     function handleShowReceipt() {
         const table = appState.tables.find(t => t.id === appState.currentTableId);
         if (!table || !table.order || table.order.length === 0) {
-            alert("Masada fiş kesilecek sipariş bulunmuyor.");
+             if (appState.currentQuickSaleOrder && appState.currentQuickSaleOrder.length > 0) {
+                // Hızlı satış için fiş
+                const finalTotal = appState.currentOrderDiscountAmount > 0 ? (appState.currentOrderOriginalTotal - appState.currentOrderDiscountAmount) : appState.currentOrderOriginalTotal;
+                prepareAndShowReceipt(appState.currentQuickSaleOrder, "Hızlı Satış", appState.user.username, appState.currentOrderOriginalTotal, appState.currentOrderDiscountAmount > 0 ? finalTotal : null);
+                return;
+            }
+            alert("Masada veya hızlı satış sepetinde fiş kesilecek sipariş bulunmuyor.");
             return;
         }
         const finalTotal = appState.currentOrderDiscountAmount > 0 ? (appState.currentOrderOriginalTotal - appState.currentOrderDiscountAmount) : appState.currentOrderOriginalTotal;
@@ -1916,6 +1937,8 @@ if (closeBulkEditMenuModalButton) {
     function handleApplyQuickSaleDiscount() {
         if (appState.user && appState.user.role === 'cashier') {
             if (appState.currentQuickSaleOrder.length > 0) {
+                const originalTotalForDiscount = appState.currentQuickSaleOrder.reduce((sum, item) => sum + (item.priceAtOrder * item.quantity), 0);
+                appState.currentOrderOriginalTotal = originalTotalForDiscount; 
                 confirmDiscountModal.classList.add('active');
             } else {
                 alert("Hızlı satış sepetinde indirim uygulanacak ürün bulunmuyor.");
@@ -1967,8 +1990,7 @@ if (closeBulkEditMenuModalButton) {
             items: appState.currentQuickSaleOrder,
             cashierUsername: appState.user.username 
         });
-        const finalTotal = appState.currentOrderDiscountAmount > 0 ? (appState.currentOrderOriginalTotal - appState.currentOrderDiscountAmount) : appState.currentOrderOriginalTotal;
-        prepareAndShowReceipt(appState.currentQuickSaleOrder, "Hızlı Satış", appState.user.username, appState.currentOrderOriginalTotal, appState.currentOrderDiscountAmount > 0 ? finalTotal : null);
+        handleShowReceipt(); // Fiş gösterme fonksiyonunu çağır
     }
 
    function prepareAndShowReceipt(orderItems, tableName, waiterName, originalTotal, discountedTotalValue) {
@@ -1988,13 +2010,11 @@ if (closeBulkEditMenuModalButton) {
         orderItems.forEach(item => {
             let itemName = item.name || 'Bilinmeyen Ürün'; 
             let itemPrice = item.priceAtOrder || 0; 
-            // Sunucudan gelen ürün listesinden (appState.products) ürün detayını bulma kısmı
-            // Eğer item.productId varsa ve appState.products tanımlıysa:
-            if (item.productId && typeof appState !== 'undefined' && appState.products) {
-                 const productDetails = appState.products.find(p => p.id === item.productId); 
-                 if(productDetails && !item.nameFromOrder) { // item.nameFromOrder gibi bir alanla manuel girilen isimleri koruyabilirsiniz
+            if (item.productId && String(item.productId).startsWith && !String(item.productId).startsWith('manual-')) {
+                const productDetails = appState.products.find(p => String(p.id) === String(item.productId)); 
+                if(productDetails && !item.nameFromOrder) { 
                     itemName = productDetails.name;
-                 }
+                }
             }
             
             let descriptionHTML = '';
@@ -2004,19 +2024,17 @@ if (closeBulkEditMenuModalButton) {
             
             let itemWaiterHTML = ''; 
             if (item.waiterUsername && tableName !== "Hızlı Satış") { 
-                 itemWaiterHTML = `<span class="item-waiter">Ekleyen: ${item.waiterUsername} (${formatTimestamp(item.timestamp)})</span>`; 
+                 itemWaiterHTML = `<span class="item-waiter">Ekleyen: <span class="math-inline">\{item\.waiterUsername\} \(</span>{formatTimestamp(item.timestamp)})</span>`; 
             }
 
             const itemDiv = document.createElement('div');
-            // Fiş görünümü için ürün adı ve fiyatını yan yana getirme
             itemDiv.innerHTML = `
-                <span class="item-details">${item.quantity}x ${itemName}</span>
-                <span class="item-price">${formatPrice(item.quantity * itemPrice)}</span>`;
-            // Açıklama ve garson bilgisini alt satıra ekleme (eğer varsa)
+                <span class="item-details">${item.quantity}x <span class="math-inline">\{itemName\}</span\>
+<span class\="item\-price"\></span>{formatPrice(item.quantity * itemPrice)}</span>`;
             if (descriptionHTML || itemWaiterHTML) {
                  const detailsDiv = document.createElement('div');
-                 detailsDiv.style.flexBasis = '100%'; // Tam genişlik kaplasın
-                 detailsDiv.style.paddingLeft = '10px'; // Biraz içeriden başlasın
+                 detailsDiv.style.flexBasis = '100%'; 
+                 detailsDiv.style.paddingLeft = '10px'; 
                  if (descriptionHTML) detailsDiv.innerHTML += descriptionHTML;
                  if (itemWaiterHTML) detailsDiv.innerHTML += itemWaiterHTML;
                  itemDiv.appendChild(detailsDiv);
@@ -2024,7 +2042,7 @@ if (closeBulkEditMenuModalButton) {
             receiptItems.appendChild(itemDiv);
         });
 
-        if (discountedTotalValue !== null && discountedTotalValue < originalTotal) {
+        if (typeof discountedTotalValue === 'number' && discountedTotalValue < originalTotal) {
             receiptSubtotal.textContent = formatPrice(originalTotal);
             receiptDiscountAmount.textContent = formatPrice(originalTotal - discountedTotalValue);
             receiptGrandTotal.textContent = formatPrice(discountedTotalValue);
@@ -2033,11 +2051,9 @@ if (closeBulkEditMenuModalButton) {
             receiptGrandTotal.textContent = formatPrice(originalTotal);
             receiptDiscountInfo.classList.add('hidden');
         }
-
         receiptModal.classList.add('active');
     }
     
-    // Bu fonksiyon da zaten dosyanızda mevcut olmalı
     function handlePrintReceipt() {
         window.print();
     }
@@ -2084,6 +2100,7 @@ if (closeBulkEditMenuModalButton) {
         const price = parseFloat(newProductPriceInput.value);
         let category = newProductCategorySelect.value;
         const newCategoryName = newProductCategoryInput.value.trim().toUpperCase();
+        let newProductId = (appState.products.reduce((max, p) => p.id > max ? p.id : max, 0) || 0) + 1;
 
         if (category === 'YENI') {
             if (!newCategoryName) {
@@ -2100,6 +2117,7 @@ if (closeBulkEditMenuModalButton) {
 
         showLoading("Yeni ürün menüye ekleniyor...");
         sendMessageToServer('add_product_to_main_menu', {
+            id: newProductId, 
             name: name,
             price: price,
             category: category
@@ -2119,10 +2137,11 @@ if (closeBulkEditMenuModalButton) {
 
     function populateSelectProductToEdit() {
         selectProductToEdit.innerHTML = '<option value="">-- Ürün Seçin --</option>';
-        appState.products.sort((a,b) => a.name.localeCompare(b, 'tr')).forEach(product => {
+        if (!appState.products || appState.products.length === 0) return;
+        appState.products.sort((a,b) => a.name.localeCompare(b.name, 'tr')).forEach(product => {
             const option = document.createElement('option');
             option.value = product.id;
-            option.textContent = `${product.name} (${product.category}) - ${formatPrice(product.price)}`;
+            option.textContent = `<span class="math-inline">\{product\.name\} \(</span>{product.category}) - ${formatPrice(product.price)}`;
             selectProductToEdit.appendChild(option);
         });
     }
@@ -2137,10 +2156,10 @@ if (closeBulkEditMenuModalButton) {
                 editProductPriceInput.value = product.price.toFixed(2);
                 
                 populateEditProductCategorySelect(); 
-                editProductCategorySelect.value = product.category; 
+                editProductCategorySelect.value = product.category.toUpperCase(); 
                 if (!editProductCategorySelect.value) { 
                     editProductCategorySelect.value = "YENI_EDIT";
-                    editProductCategoryInput.value = product.category;
+                    editProductCategoryInput.value = product.category.toUpperCase();
                     editProductCategoryInput.classList.remove('hidden');
                 } else {
                      editProductCategoryInput.classList.add('hidden');
@@ -2196,7 +2215,7 @@ if (closeBulkEditMenuModalButton) {
     function populateTableSelectsForManagement() {
         selectTableToEditName.innerHTML = '<option value="">Düzenlenecek Masayı Seçin</option>';
         selectTableToDelete.innerHTML = '<option value="">Silinecek Masayı Seçin</option>';
-        appState.tables.forEach(table => {
+        appState.tables.sort((a,b) => a.name.localeCompare(b.name, 'tr', {numeric: true})).forEach(table => {
             const optionEdit = document.createElement('option');
             optionEdit.value = table.id;
             optionEdit.textContent = table.name;
@@ -2264,7 +2283,8 @@ if (closeBulkEditMenuModalButton) {
     function populateWaiterSelectsForManagement() {
         selectWaiterToEditPassword.innerHTML = '<option value="">Düzenlenecek Garsonu Seçin</option>';
         selectWaiterToDelete.innerHTML = '<option value="">Silinecek Garsonu Seçin</option>';
-        appState.waiters.forEach(waiter => {
+        if (!appState.waiters || appState.waiters.length === 0) return;
+        appState.waiters.sort((a,b) => a.username.localeCompare(b.username, 'tr')).forEach(waiter => {
             const optionEdit = document.createElement('option');
             optionEdit.value = waiter.id;
             optionEdit.textContent = waiter.username;
@@ -2322,26 +2342,24 @@ if (closeBulkEditMenuModalButton) {
     }
 
     loginButton.addEventListener('click', handleLogin);
-    passwordInput.addEventListener('keypress', (event) => {
-        if (event.key === 'Enter') handleLogin();
-    });
+    passwordInput.addEventListener('keypress', (event) => { if (event.key === 'Enter') handleLogin(); });
     logoutButton.addEventListener('click', handleLogout);
-    salesReportButton.addEventListener('click', openSalesReport); 
-    quickSaleEntryButton.addEventListener('click', openQuickSaleModal); 
-    addProductToMenuButton.addEventListener('click', openAddProductToMenuModal); 
-    editProductMenuButton.addEventListener('click', openEditProductModal); 
-    manageTablesButton.addEventListener('click', openManageTablesModal); 
-    manageWaitersButton.addEventListener('click', openManageWaitersModal); 
+    if (salesReportButton) salesReportButton.addEventListener('click', openSalesReport); 
+    if (quickSaleEntryButton) quickSaleEntryButton.addEventListener('click', openQuickSaleModal); 
+    if (addProductToMenuButton) addProductToMenuButton.addEventListener('click', openAddProductToMenuModal); 
+    if (editProductMenuButton) editProductMenuButton.addEventListener('click', openEditProductModal); 
+    if (manageTablesButton) manageTablesButton.addEventListener('click', openManageTablesModal); 
+    if (manageWaitersButton) manageWaitersButton.addEventListener('click', openManageWaitersModal); 
 
-    closeAddProductToMenuModalButton.addEventListener('click', () => addProductToMenuModal.classList.remove('active')); 
-    saveNewProductButton.addEventListener('click', handleSaveNewProduct); 
-    closeEditProductModalButton.addEventListener('click', () => editProductModal.classList.remove('active')); 
-    saveEditedProductButton.addEventListener('click', handleSaveEditedProduct); 
-    closeManageTablesModalButton.addEventListener('click', closeManageTablesModal); 
-    addNewTableButton.addEventListener('click', handleAddNewTable); 
-    updateTableNameButton.addEventListener('click', handleUpdateTableName); 
-    deleteTableButton.addEventListener('click', handleDeleteTable); 
-    confirmDeleteTableYesButton.addEventListener('click', () => { 
+    if (closeAddProductToMenuModalButton) closeAddProductToMenuModalButton.addEventListener('click', () => addProductToMenuModal.classList.remove('active')); 
+    if (saveNewProductButton) saveNewProductButton.addEventListener('click', handleSaveNewProduct); 
+    if (closeEditProductModalButton) closeEditProductModalButton.addEventListener('click', () => editProductModal.classList.remove('active')); 
+    if (saveEditedProductButton) saveEditedProductButton.addEventListener('click', handleSaveEditedProduct); 
+    if (closeManageTablesModalButton) closeManageTablesModalButton.addEventListener('click', closeManageTablesModal); 
+    if (addNewTableButton) addNewTableButton.addEventListener('click', handleAddNewTable); 
+    if (updateTableNameButton) updateTableNameButton.addEventListener('click', handleUpdateTableName); 
+    if (deleteTableButton) deleteTableButton.addEventListener('click', handleDeleteTable); 
+    if (confirmDeleteTableYesButton) confirmDeleteTableYesButton.addEventListener('click', () => { 
         const tableId = selectTableToDelete.value;
         if (tableId) {
             showLoading("Masa siliniyor...");
@@ -2349,15 +2367,15 @@ if (closeBulkEditMenuModalButton) {
         }
         confirmDeleteTableModal.classList.remove('active');
     });
-    confirmDeleteTableNoButton.addEventListener('click', () => { 
+    if (confirmDeleteTableNoButton) confirmDeleteTableNoButton.addEventListener('click', () => { 
         confirmDeleteTableModal.classList.remove('active');
     });
 
-    closeManageWaitersModalButton.addEventListener('click', closeManageWaitersModal); 
-    addNewWaiterButton.addEventListener('click', handleAddNewWaiter); 
-    updateWaiterPasswordButton.addEventListener('click', handleUpdateWaiterPassword); 
-    deleteWaiterButton.addEventListener('click', handleDeleteWaiter); 
-    confirmDeleteWaiterYesButton.addEventListener('click', () => { 
+    if (closeManageWaitersModalButton) closeManageWaitersModalButton.addEventListener('click', closeManageWaitersModal); 
+    if (addNewWaiterButton) addNewWaiterButton.addEventListener('click', handleAddNewWaiter); 
+    if (updateWaiterPasswordButton) updateWaiterPasswordButton.addEventListener('click', handleUpdateWaiterPassword); 
+    if (deleteWaiterButton) deleteWaiterButton.addEventListener('click', handleDeleteWaiter); 
+    if (confirmDeleteWaiterYesButton) confirmDeleteWaiterYesButton.addEventListener('click', () => { 
         if (waiterIdToDelete) {
             showLoading("Garson siliniyor...");
             sendMessageToServer('delete_waiter', { userId: waiterIdToDelete });
@@ -2365,18 +2383,18 @@ if (closeBulkEditMenuModalButton) {
         }
         confirmDeleteWaiterModal.classList.remove('active');
     });
-    confirmDeleteWaiterNoButton.addEventListener('click', () => { 
+    if (confirmDeleteWaiterNoButton) confirmDeleteWaiterNoButton.addEventListener('click', () => { 
         waiterIdToDelete = null; 
         confirmDeleteWaiterModal.classList.remove('active');
     });
 
-    closeQuickSaleModalButton.addEventListener('click', () => { 
+    if (closeQuickSaleModalButton) closeQuickSaleModalButton.addEventListener('click', () => { 
         quickSaleModal.classList.remove('active');
         resetCurrentOrderDiscount(); 
         showTablesView(); 
     });
-    completeQuickSaleButton.addEventListener('click', completeQuickSale); 
-    applyQuickSaleDiscountButton.addEventListener('click', handleApplyQuickSaleDiscount); 
+    if (completeQuickSaleButton) completeQuickSaleButton.addEventListener('click', completeQuickSale); 
+    if (applyQuickSaleDiscountButton) applyQuickSaleDiscountButton.addEventListener('click', handleApplyQuickSaleDiscount); 
 
     backToTablesButton.addEventListener('click', showTablesView);
     addManualProductButton.addEventListener('click', addManualProduct); 
@@ -2431,7 +2449,6 @@ if (closeBulkEditMenuModalButton) {
                 targetDiscountInfoDiv.textContent = `İndirim Uygulandı: -${formatPrice(discountAmount)}`;
                 targetDiscountInfoDiv.classList.remove('hidden');
             }
-            console.log("Personel indirimi uygulandı. Yeni toplam:", discountedTotal);
         }
         confirmDiscountModal.classList.remove('active');
     });
@@ -2439,12 +2456,12 @@ if (closeBulkEditMenuModalButton) {
         confirmDiscountModal.classList.remove('active');
     });
     
-    closeSalesReportModalButton.addEventListener('click', () => salesReportModal.classList.remove('active')); 
-    refreshSalesReportButton.addEventListener('click', () => { 
+    if(closeSalesReportModalButton) closeSalesReportModalButton.addEventListener('click', () => salesReportModal.classList.remove('active')); 
+    if(refreshSalesReportButton) refreshSalesReportButton.addEventListener('click', () => { 
         showLoading("Rapor güncelleniyor...");
         sendMessageToServer('get_sales_report', {});
     });
-    printSalesReportButton.addEventListener('click', printSalesReport); 
+    if(printSalesReportButton) printSalesReportButton.addEventListener('click', printSalesReport); 
 
     document.addEventListener('DOMContentLoaded', () => {
         connectWebSocket(); 
@@ -2453,4 +2470,3 @@ if (closeBulkEditMenuModalButton) {
 </script>
 </body>
 </html>
-    
