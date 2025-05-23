@@ -671,56 +671,16 @@
     const WEBSOCKET_URL = 'wss://isabet-satis.onrender.com'; 
     let socket;
 
-    const appState = {
-        user: null, 
-        products: [ 
-            { id: 1001, name: "İSKENDER - 120 GR", price: 275.00, category: "ET - TAVUK" },
-            { id: 1002, name: "ET DÖNER EKMEK ARASI", price: 150.00, category: "ET - TAVUK" },
-            { id: 1003, name: "ET DÖNER PORSİYON", price: 175.00, category: "ET - TAVUK" },
-            { id: 1004, name: "TAVUK DÖNER EKMEK ARASI", price: 130.00, category: "ET - TAVUK" },
-            { id: 1005, name: "TAVUK DÖNER PORSİYON", price: 150.00, category: "ET - TAVUK" },
-            { id: 1006, name: "KÖFTE EKMEK", price: 130.00, category: "ET - TAVUK" },
-            { id: 1007, name: "KÖFTE PORSİYON", price: 150.00, category: "ET - TAVUK" },
-            { id: 1008, name: "KUZU ŞİŞ", price: 150.00, category: "ET - TAVUK" },
-            { id: 1009, name: "ADANA ŞİŞ", price: 150.00, category: "ET - TAVUK" },
-            { id: 1010, name: "PİRZOLA - 4 ADET", price: 250.00, category: "ET - TAVUK" },
-            { id: 1011, name: "TAVUK FAJİTA", price: 200.00, category: "ET - TAVUK" }, 
-            { id: 1012, name: "TAVUK (PİLİÇ) ÇEVİRME", price: 250.00, category: "ET - TAVUK" },
-            { id: 1013, name: "ET DÖNER - KG", price: 1300.00, category: "ET - TAVUK" },
-            { id: 1014, name: "ET DÖNER - 500 GR", price: 650.00, category: "ET - TAVUK" },
-            { id: 1015, name: "TAVUK DÖNER - KG", price: 800.00, category: "ET - TAVUK" },
-            { id: 1016, name: "TAVUK DÖNER - 500 GR", price: 400.00, category: "ET - TAVUK" },
-            { id: 2001, name: "PİZZA KARIŞIK (ORTA BOY)", price: 150.00, category: "ATIŞTIRMALIK" },
-            { id: 2002, name: "PİZZA KARIŞIK (BÜYÜK BOY)", price: 200.00, category: "ATIŞTIRMALIK" },
-            { id: 2003, name: "LAHMACUN", price: 75.00, category: "ATIŞTIRMALIK" },
-            { id: 2004, name: "PİDE ÇEŞİTLERİ", price: 100.00, category: "ATIŞTIRMALIK" },
-            { id: 2005, name: "AYVALIK TOSTU", price: 100.00, category: "ATIŞTIRMALIK" },
-            { id: 2006, name: "HAMBURGER", price: 120.00, category: "ATIŞTIRMALIK" },
-            { id: 2007, name: "ÇİĞ KÖFTE KG (MARUL-LİMON)", price: 300.00, category: "ATIŞTIRMALIK" },
-            { id: 3001, name: "OSMANLI ŞERBETİ - 1 LİTRE", price: 75.00, category: "İÇECEK" },
-            { id: 3002, name: "LİMONATA", price: 75.00, category: "İÇECEK" },
-            { id: 3003, name: "SU", price: 10.00, category: "İÇECEK" },
-            { id: 3004, name: "AYRAN", price: 15.00, category: "İÇECEK" },
-            { id: 3005, name: "ÇAY", price: 10.00, category: "İÇECEK" },
-            { id: 3006, name: "GAZOZ", price: 25.00, category: "İÇECEK" }, 
-            { id: 4001, name: "EV BAKLAVASI - KG", price: 400.00, category: "TATLI" },
-            { id: 4002, name: "EV BAKLAVASI - 500 GRAM", price: 200.00, category: "TATLI" },
-            { id: 4003, name: "EV BAKLAVASI - PORSİYON", price: 75.00, category: "TATLI" },
-            { id: 4004, name: "AŞURE - 500 GRAM", price: 100.00, category: "TATLI" },
-            { id: 4005, name: "HÖŞMERİM - 500 GRAM", price: 100.00, category: "TATLI" },
-            { id: 4006, name: "DİĞER PASTA ÇEŞİTLERİ", price: 50.00, category: "TATLI" },
-            { id: 4007, name: "YAĞLI GÖZLEME", price: 50.00, category: "TATLI" },
-            { id: 4008, name: "İÇLİ GÖZLEME", price: 60.00, category: "TATLI" },
-            { id: 5001, name: "KELLE PAÇA ÇORBA", price: 60.00, category: "ÇORBA" },
-            { id: 5002, name: "TARHANA ÇORBA", price: 60.00, category: "ÇORBA" }
-        ],
-        tables: [], 
-        currentTableId: null, 
+const appState = {
+        user: null,
+        products: [], // Ürünler başlangıçta boş bir dizi olacak, sunucudan yüklenecek
+        tables: [],
+        currentTableId: null,
         salesReport: [],
         currentQuickSaleOrder: [],
-        currentOrderOriginalTotal: 0, 
+        currentOrderOriginalTotal: 0,
         currentOrderDiscountAmount: 0,
-        waiters: [] 
+        waiters: []
     };
 
     const loadingOverlay = document.getElementById('loadingOverlay');
