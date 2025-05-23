@@ -1602,18 +1602,8 @@ function updateUIForRole() {
         productsListRef.innerHTML = '<p class="text-gray-500">Menü boş. Kasa yetkisiyle "Menüyü Toplu Düzenle" seçeneğini kullanın.</p>';
         return;
     }
-    const categories = {};
-    appState.products.forEach(product => {
-        console.log("renderProductsForReference içindeki product:", JSON.stringify(product)); // EKLENDI - Her bir ürünü kontrol et
-        const categoryKey = (product.category || 'DİĞER').toUpperCase(); 
-        if (!categories[categoryKey]) categories[categoryKey] = [];
-        categories[categoryKey].push(product);
-    });
-        productsListRef.innerHTML = '';
-        if (!appState.products || appState.products.length === 0) {
-            productsListRef.innerHTML = '<p class="text-gray-500">Menü boş. Kasa yetkisiyle "Menüyü Toplu Düzenle" seçeneğini kullanın.</p>';
-            return;
-        }
+  
+  
         const categories = {};
         appState.products.forEach(product => {
              const categoryKey = (product.category || 'DİĞER').toUpperCase(); 
