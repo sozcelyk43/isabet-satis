@@ -1,3 +1,4 @@
+const path = require('path');
 const express = require('express');
 const { Pool } = require('pg');
 const dotenv = require('dotenv');
