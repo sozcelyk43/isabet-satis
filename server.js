@@ -1,7 +1,7 @@
-const path = require('path');
 const express = require('express');
 const { Pool } = require('pg');
 const dotenv = require('dotenv');
+const path = require('path');
 
 dotenv.config();
 
@@ -9,6 +9,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
+app.use(express.static(path.join(__dirname, 'public')));
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
@@ -18,19 +19,19 @@ const pool = new Pool({
 pool.connect((err, client, release) => {
   if (err) {
     console.error('Veritabanına bağlanırken hata oluştu:', err.stack);
-    // Uygulamanın çökmesini engellemek için burada process.exit() KULLANILMAMALIDIR
-    // Bunun yerine, uygulama başlangıçta veritabanı olmadan çalışmaya devam edebilir
-    // veya periyodik olarak yeniden bağlanmayı deneyebilir.
-    // Ancak bu örnek için basit bir loglama yapıyoruz.
     return;
   }
-  client.query('SELECT NOW()', (err, result) => {
-    release();
-    if (err) {
-      return console.error('Test sorgusu çalıştırılırken hata:', err.stack);
-    }
-    console.log('PostgreSQL veritabanına başarıyla bağlanıldı:', result.rows[0].now);
-  });
+  if (client) {
+    client.query('SELECT NOW()', (err, result) => {
+      release();
+      if (err) {
+        return console.error('Test sorgusu çalıştırılırken hata:', err.stack);
+      }
+      console.log('PostgreSQL veritabanına başarıyla bağlanıldı:', result.rows[0].now);
+    });
+  } else {
+    console.error('Veritabanı istemcisi alınamadı.');
+  }
 });
 
 const programAdi = "İsabet Satış Programı";
@@ -42,8 +43,7 @@ async function logActivity(action, details) {
     VALUES ($1, $2, NOW()) RETURNING id;
   `;
   try {
-    const res = await pool.query(query, [action, JSON.stringify(details)]);
-    console.log('Aktivite loglandı, ID:', res.rows[0].id);
+    await pool.query(query, [action, JSON.stringify(details)]);
   } catch (err) {
     console.error('Aktivite loglama hatası:', err.stack);
   }
@@ -56,7 +56,6 @@ async function logSale(saleData) {
   `;
   try {
     const res = await pool.query(query, [JSON.stringify(saleData.items), saleData.total, saleData.tableId, saleData.paymentType]);
-    console.log('Satış loglandı, ID:', res.rows[0].id);
     await logActivity('SALE_COMPLETED', { saleId: res.rows[0].id, total: saleData.total, tableId: saleData.tableId });
   } catch (err) {
     console.error('Satış loglama hatası:', err.stack);
@@ -152,7 +151,7 @@ app.post('/api/sales', async (req, res) => {
 
   try {
     await logSale({ items, total: parseFloat(total), tableId: parseInt(tableId, 10), paymentType: paymentType || 'Nakit' });
-    res.status(201).json({
+    const saleResult = {
       message: "Satış başarıyla kaydedildi.",
       receiptData: {
         programAdi: programAdi,
@@ -162,7 +161,8 @@ app.post('/api/sales', async (req, res) => {
         totalAmount: total,
         paymentType: paymentType || 'Nakit'
       }
-    });
+    };
+    res.status(201).json(saleResult);
   } catch (err) {
     console.error("Satış işlemi sırasında hata:", err.message);
     await logActivity('ERROR_PROCESSING_SALE', { error: err.message, saleData: req.body });
@@ -192,9 +192,26 @@ app.get('/api/logs/activity', async (req, res) => {
   }
 });
 
-app.get('/', (req, res) => {
-  res.send(`${programAdi} sunucusuna hoş geldiniz! Masa Sayısı: ${masaSayisi}. Bağlantı durumu: ${pool.totalCount > 0 ? 'Bağlı' : 'Bağlı Değil (Kontrol Edin)'}`);
+app.get('/', (req, res, next) => {
+  // This route will only be hit if public/index.html is not found by express.static
+  // For SPA, typically you'd serve index.html for all non-API GET routes.
+  // However, since express.static is defined first, it should serve index.html.
+  // This is kept for the "Bağlantı durumu" check if index.html is missing.
+  if (req.accepts('html')) { // Check if the client prefers HTML
+    // If you want to ensure index.html is served, you could do:
+    // res.sendFile(path.join(__dirname, 'public', 'index.html'), (err) => {
+    //   if (err) {
+    //     res.status(500).send("index.html bulunamadı veya sunucu hatası.");
+    //   }
+    // });
+    // For now, let's keep the original welcome message behavior if index.html isn't served.
+     res.send(`${programAdi} sunucusuna hoş geldiniz! Masa Sayısı: ${masaSayisi}. Bağlantı durumu: ${pool.totalCount > 0 ? 'Bağlı' : 'Bağlı Değil (Kontrol Edin)'}`);
+  } else {
+    // If it's an API client not accepting HTML, or you want a different response
+    res.json({ message: `${programAdi} sunucusuna hoş geldiniz!`, masaSayisi: masaSayisi, db_status: pool.totalCount > 0 ? 'Bağlı' : 'Bağlı Değil (Kontrol Edin)' });
+  }
 });
+
 
 app.listen(PORT, () => {
   console.log(`${programAdi} sunucusu http://localhost:${PORT} adresinde çalışıyor`);
@@ -204,4 +221,5 @@ app.listen(PORT, () => {
     console.log("Uygulama geliştirme modunda çalışıyor.");
   }
   console.log(`Mevcut Masa Sayısı: ${masaSayisi}`);
+  console.log(`Statik dosyalar '${path.join(__dirname, 'public')}' klasöründen sunuluyor.`);
 });
