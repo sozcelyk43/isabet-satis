@@ -283,6 +283,7 @@
                 <p class="text-gray-600 mt-1">Aktif Kullanıcı: <span id="activeUserName" class="font-semibold"></span> (<span id="activeUserRole" class="capitalize"></span>)</p>
             </div>
             <div class="flex flex-wrap gap-2">
+                <button id="bulkEditMenuButton" class="bg-cyan-500 hover:bg-cyan-600 text-white font-semibold py-2 px-4 rounded-md transition duration-150 hidden">Menüyü Toplu Düzenle</button>
                 <button id="manageWaitersButton" class="bg-pink-500 hover:bg-pink-600 text-white font-semibold py-2 px-4 rounded-md transition duration-150 hidden">Garson Yönetimi</button>
                 <button id="manageTablesButton" class="bg-orange-500 hover:bg-orange-600 text-white font-semibold py-2 px-4 rounded-md transition duration-150 hidden">Masalar Yönetimi</button>
                 <button id="editProductMenuButton" class="bg-purple-500 hover:bg-purple-600 text-white font-semibold py-2 px-4 rounded-md transition duration-150 hidden">Ürün Düzenleme</button>
@@ -399,6 +400,40 @@
             </div>
         </div>
     </div>
+
+
+    <div id="bulkEditMenuModal" class="modal fixed inset-0 bg-gray-900 bg-opacity-75 items-center justify-center z-50">
+    <div class="modal-content" style="width: 90%; max-width: 1000px;">
+        <div class="bg-white p-6 rounded-lg shadow-xl w-full max-h-[90vh] flex flex-col">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-semibold text-cyan-600">Menüyü Toplu Düzenle</h2>
+                <button id="closeBulkEditMenuModalButton" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
+            </div>
+            <div class="flex-grow overflow-y-auto mb-4 pr-2">
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr class="bg-gray-100">
+                            <th class="p-2 border text-left">ID</th>
+                            <th class="p-2 border text-left">Ad</th>
+                            <th class="p-2 border text-left">Fiyat (₺)</th>
+                            <th class="p-2 border text-left">Kategori</th>
+                            <th class="p-2 border text-center">İşlem</th>
+                        </tr>
+                    </thead>
+                    <tbody id="bulkEditProductList">
+                        </tbody>
+                </table>
+            </div>
+            <div class="mt-auto pt-4 flex flex-wrap justify-between items-center gap-2">
+                <button id="addNewProductToBulkEditListButton" class="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-md">Listeye Yeni Ürün Ekle</button>
+                <div>
+                    <button id="saveBulkMenuChangesButton" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-md">Değişiklikleri Kaydet ve Sunucuya Gönder</button>
+                    <button id="cancelBulkEditButton" class="bg-gray-500 hover:bg-gray-600 text-white font-semibold py-2 px-4 rounded-md ml-2">İptal</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
    <div id="receiptModal" class="modal fixed inset-0 bg-gray-900 bg-opacity-75 items-center justify-center z-50">
         <div id="receiptModalContent" class="bg-white p-6 md:p-8 rounded-lg shadow-xl w-full max-w-md max-h-[90vh] flex flex-col">
@@ -815,6 +850,18 @@
     const refreshSalesReportButton = document.getElementById('refreshSalesReportButton');
     const printSalesReportButton = document.getElementById('printSalesReportButton');
 
+    const bulkEditMenuButton = document.getElementById('bulkEditMenuButton');
+    const bulkEditMenuModal = document.getElementById('bulkEditMenuModal');
+    const closeBulkEditMenuModalButton = document.getElementById('closeBulkEditMenuModalButton');
+    const bulkEditProductListBody = document.getElementById('bulkEditProductList');
+    const addNewProductToBulkEditListButton = document.getElementById('addNewProductToBulkEditListButton');
+    const saveBulkMenuChangesButton = document.getElementById('saveBulkMenuChangesButton');
+    const cancelBulkEditButton = document.getElementById('cancelBulkEditButton');
+
+
+    let productsForBulkEdit = []; // Düzenleme için ürünlerin geçici kopyası
+    let nextNewBulkProductId = -1; 
+
     function formatPrice(price) {
         if (typeof price !== 'number' || isNaN(price)) {
             return '0 ₺'; 
@@ -1089,6 +1136,137 @@
                 console.warn("Bilinmeyen mesaj tipi:", message.type, "Payload:", message.payload);
         }
     }
+
+function openBulkEditMenuModal() {
+    if (!appState.user || appState.user.role !== 'cashier') return;
+    
+    // appState.products'ın derin bir kopyasını al
+    productsForBulkEdit = JSON.parse(JSON.stringify(appState.products)); 
+    nextNewBulkProductId = -1; // Her açılışta sıfırla
+    renderBulkEditProductList();
+    bulkEditMenuModal.classList.add('active');
+}
+
+function closeBulkEditMenuModal() {
+    bulkEditMenuModal.classList.remove('active');
+}
+
+function renderBulkEditProductList() {
+    bulkEditProductListBody.innerHTML = '';
+    productsForBulkEdit.forEach((product, index) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td class="p-1 border">
+                <input type="number" value="${product.id}" class="w-full p-1 border rounded bg-gray-100" readonly title="ID değiştirilemez (var olanlar için)">
+            </td>
+            <td class="p-1 border">
+                <input type="text" value="${product.name}" data-index="${index}" data-field="name" class="bulk-edit-input w-full p-1 border rounded">
+            </td>
+            <td class="p-1 border">
+                <input type="number" value="${product.price.toFixed(2)}" step="0.01" data-index="${index}" data-field="price" class="bulk-edit-input w-full p-1 border rounded">
+            </td>
+            <td class="p-1 border">
+                <input type="text" value="${product.category}" data-index="${index}" data-field="category" class="bulk-edit-input w-full p-1 border rounded">
+            </td>
+            <td class="p-1 border text-center">
+                <button data-index="${index}" class="remove-product-from-bulk-list-btn bg-red-500 hover:bg-red-600 text-white text-xs py-1 px-2 rounded">Sil</button>
+            </td>
+        `;
+        bulkEditProductListBody.appendChild(tr);
+    });
+
+    // Input değişikliklerini yakala
+    document.querySelectorAll('.bulk-edit-input').forEach(input => {
+        input.addEventListener('change', (e) => {
+            const index = parseInt(e.target.dataset.index);
+            const field = e.target.dataset.field;
+            let value = e.target.value;
+            if (field === 'price') value = parseFloat(value);
+            if (field === 'id' && productsForBulkEdit[index].id > 0) return; // Var olan ID'yi değiştirmeyi engelle (opsiyonel)
+            
+            productsForBulkEdit[index][field] = value;
+        });
+    });
+
+    // Silme butonlarını yakala
+    document.querySelectorAll('.remove-product-from-bulk-list-btn').forEach(button => {
+        button.addEventListener('click', (e) => {
+            const index = parseInt(e.target.dataset.index);
+            productsForBulkEdit.splice(index, 1);
+            renderBulkEditProductList(); // Listeyi yeniden çiz
+        });
+    });
+}
+
+// Listeye yeni boş ürün satırı ekleme
+addNewProductToBulkEditListButton.addEventListener('click', () => {
+    const newId = nextNewBulkProductId--; // Yeni ürünler için geçici negatif ID
+                                        // Sunucu tarafı bu ID'leri dikkate almayıp kendi ID'lerini üretebilir
+                                        // VEYA istemcinin en yüksek ID'yi bulup +1 ile göndermesi beklenebilir.
+                                        // Şimdilik basit tutuyoruz, sunucu tüm listeyi alıp ID'leri yeniden düzenleyebilir veya var olanları koruyabilir.
+                                        // Önemli: Eğer DB'de ID'ler SERIAL ise, yeni ürünler için ID göndermemek daha iyi.
+                                        // Bu örnekte server.js'deki bulk update, client'tan gelen ID'yi kullanıyor.
+                                        // Eğer client'ta ID yoksa (0 veya null) server yeni ID atayabilir.
+                                        // Ya da buradaki ID'yi sunucuya göndermeyip, sunucunun yeni ID'ler atamasını sağlayabiliriz.
+                                        // Mevcut sunucu, gelen ID'yi kullanmaya çalışacak. Bu ID'nin DB'de unique olması gerekir.
+                                        // Veya en güvenlisi, sunucuya ID'siz gönderip, sunucunun yeni ürünlere DB'den ID almasını sağlamak.
+                                        // Şimdilik, sunucunun client ID'sini kullandığını varsayalım ve çakışma olmaması için
+                                        // kullanıcının dikkatli olması gerektiğini belirtelim veya sunucuda ID yönetimini daha karmaşık hale getirelim.
+                                        // En basit çözüm: appState.products'taki en yüksek ID'yi bulup +1 ile başlamak.
+    let maxId = 0;
+    appState.products.forEach(p => { if (p.id > maxId) maxId = p.id; });
+    productsForBulkEdit.forEach(p => { if (p.id > maxId) maxId = p.id; });
+
+
+    productsForBulkEdit.push({
+        id: maxId + 1, // Geçici veya kalıcı ID (sunucu tarafı nasıl işleyeceğine bağlı)
+        name: '',
+        price: 0,
+        category: ''
+    });
+    renderBulkEditProductList();
+    // Son eklenen satıra odaklanabiliriz
+    const lastRowInputs = bulkEditProductListBody.lastElementChild.querySelectorAll('input');
+    if(lastRowInputs.length > 1) lastRowInputs[1].focus(); // Ad alanına odaklan
+});
+
+
+// Değişiklikleri sunucuya gönderme
+saveBulkMenuChangesButton.addEventListener('click', () => {
+    // Temel doğrulama
+    const isValid = productsForBulkEdit.every(p => p.name && p.price != null && p.category && p.id != null);
+    if (!isValid) {
+        alert("Lütfen tüm ürünlerin Ad, Fiyat, Kategori ve ID bilgilerini eksiksiz girin.");
+        return;
+    }
+    // ID'lerin benzersizliğini kontrol et (opsiyonel ama önemli)
+    const ids = productsForBulkEdit.map(p => p.id);
+    const uniqueIds = new Set(ids);
+    if (ids.length !== uniqueIds.size) {
+        alert("Ürün ID'leri benzersiz olmalıdır. Lütfen ID'leri kontrol edin.");
+        return;
+    }
+
+    if (confirm("Tüm menü güncellenecek ve veritabanına kaydedilecek. Emin misiniz?")) {
+        showLoading("Menü güncelleniyor...");
+        sendMessageToServer('bulk_update_products', { products: productsForBulkEdit });
+        closeBulkEditMenuModal(); // Modalı kapat
+    }
+});
+
+// İptal butonu
+cancelBulkEditButton.addEventListener('click', closeBulkEditMenuModal);
+
+// Ana butonlara event listener ekleme
+if (bulkEditMenuButton) {
+    bulkEditMenuButton.addEventListener('click', openBulkEditMenuModal);
+}
+if (closeBulkEditMenuModalButton) {
+    closeBulkEditMenuModalButton.addEventListener('click', closeBulkEditMenuModal);
+}
+
+
+    
     
     function showLoginError(message) {
         loginError.textContent = message;
@@ -1096,37 +1274,38 @@
     }
 
     function updateUIForRole() {
-        if (!appState.user) return;
-        console.log("UI güncelleniyor. Kullanıcı rolü:", appState.user.role);
-        
-        if (appState.user.role === 'cashier') {
-            manualProductSection.classList.remove('hidden');
-            salesReportButton.textContent = "Satış Raporlama"; 
-            salesReportButton.classList.remove('hidden'); 
-            quickSaleButtonContainerTop.classList.remove('hidden'); 
-            addProductToMenuButton.classList.remove('hidden'); 
-            editProductMenuButton.classList.remove('hidden'); 
-            manageTablesButton.classList.remove('hidden'); 
-            manageWaitersButton.classList.remove('hidden'); 
-            finalizeAndCloseTableButton.classList.remove('hidden'); 
-            showReceiptButton.classList.remove('hidden'); 
-            applyDiscountButton.classList.remove('hidden'); 
-            applyQuickSaleDiscountButton.classList.remove('hidden'); 
-        } else { 
-            manualProductSection.classList.add('hidden');
-            salesReportButton.classList.add('hidden'); 
-            quickSaleButtonContainerTop.classList.add('hidden'); 
-            addProductToMenuButton.classList.add('hidden'); 
-            editProductMenuButton.classList.add('hidden'); 
-            manageTablesButton.classList.add('hidden'); 
-            manageWaitersButton.classList.add('hidden'); 
-            finalizeAndCloseTableButton.classList.add('hidden'); 
-            showReceiptButton.classList.add('hidden'); 
-            applyDiscountButton.classList.add('hidden'); 
-            applyQuickSaleDiscountButton.classList.add('hidden');
-        }
-        logoutButton.textContent = "Uygulamadan Çık"; 
+    if (!appState.user) return;
+
+    const cashierOnlyElements = [
+        manualProductSection, 
+        salesReportButton, 
+        quickSaleButtonContainerTop,
+        addProductToMenuButton, 
+        editProductMenuButton, 
+        manageTablesButton,
+        manageWaitersButton, 
+        finalizeAndCloseTableButton,
+        showReceiptButton, 
+        applyDiscountButton, 
+        applyQuickSaleDiscountButton
+    ];
+    
+    const bulkEditMenuButton = document.getElementById('bulkEditMenuButton');
+    if (bulkEditMenuButton) cashierOnlyElements.push(bulkEditMenuButton);
+
+
+    if (appState.user.role === 'cashier') {
+        cashierOnlyElements.forEach(el => {
+            if (el) el.classList.remove('hidden');
+        });
+        if (salesReportButton) salesReportButton.textContent = "Satış Raporlama";
+    } else {
+        cashierOnlyElements.forEach(el => {
+            if (el) el.classList.add('hidden');
+        });
     }
+    if (logoutButton) logoutButton.textContent = "Uygulamadan Çık";
+}
     
     let initialDataRendered = false;
     function renderInitialDataIfNeeded() {
