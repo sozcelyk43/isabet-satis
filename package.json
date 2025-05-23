@@ -1,0 +1,22 @@
+{
+  "name": "isabet-satis-programi",
+  "version": "1.0.0",
+  "description": "İsabet Satış Programı Backend",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "keywords": [
+    "pos",
+    "sales",
+    "isabet"
+  ],
+  "author": "sinan",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^16.5.0",
+    "express": "^4.21.2",
+    "pg": "^8.16.0"
+  }
+}
