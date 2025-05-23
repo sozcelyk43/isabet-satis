@@ -144,125 +144,111 @@
              font-weight: bold;
          }
 
-        @media print {
+ @media print {
+            body {
+                margin: 0;
+                padding: 0;
+                background-color: #fff; /* Arka planı beyaz yap */
+            }
             body * {
-                visibility: hidden;
+                visibility: hidden; /* Önce her şeyi gizle */
+                font-family: 'Arial', sans-serif; /* Yazıcı dostu font */
             }
+
             #receiptModalContent, #receiptModalContent * {
-                visibility: visible;
+                visibility: visible; /* Sadece fiş içeriğini görünür yap */
             }
+
             #receiptModalContent {
                 position: absolute;
                 left: 0;
                 top: 0;
-                width: 100mm; 
-                font-size: 9pt; 
-                padding: 4mm; 
+                width: 78mm; /* 80mm kağıt için ~76-78mm kullanılabilir alan, kenar boşlukları düşünülerek */
+                /* height: 78mm; Eğer sabit yükseklik isteniyorsa, ama genellikle termal fişler için yükseklik değişkendir */
+                /* overflow: hidden; Eğer sabit yükseklik ve içerik taşıyorsa */
+                font-size: 8pt; /* Daha küçük font boyutu */
+                line-height: 1.3; /* Satır yüksekliği */
+                padding: 2mm; /* İç kenar boşluğu */
                 box-sizing: border-box;
-                border: 1px solid #ccc; 
+                border: none; /* Yazdırma sırasında kenarlık olmasın */
+                box-shadow: none; /* Yazdırma sırasında gölge olmasın */
+                background-color: #fff; /* Arka planı beyaz yap */
+                color: #000; /* Yazı rengi siyah */
+                margin: 0;
+                border-radius: 0;
             }
-            #salesReportModalContent, #salesReportModalContent * {
-                 visibility: visible;
-            }
-             #salesReportModalContent {
-                 position: absolute;
-                 left: 0;
-                 top: 0;
-                 width: 100%; 
-                 font-size: 10pt;
-                 padding: 10mm;
-                 box-sizing: border-box;
-             }
-             #salesReportModalContent table {
-                 width: 100%;
-                 border-collapse: collapse;
-             }
-             #salesReportModalContent th, #salesReportModalContent td {
-                 border: 1px solid #ccc;
-                 padding: 2mm;
-                 text-align: left;
-             }
-             #salesReportModalContent th {
-                 background-color: #eee;
-             }
 
-            #receiptModalContent button, 
-            #salesReportModalContent button,
-            #quickSaleModal button:not(#printReceiptButton), 
-            #appContainer button#logoutButton, 
-            #orderPageContainer button:not(#printReceiptButton):not(#closeReceiptModalOnlyButton):not(#finalizeAndCloseTableButton), 
-            #confirmCloseTableModal button,
-            #confirmDiscountModal button,
-            #addProductToMenuModal button,
-            #editProductModal button,
-            #manageTablesModal button,
-            #manageWaitersModal button,
-            #confirmDeleteTableModal button,
-            #confirmDeleteWaiterModal button
-             {
-                display: none !important; 
-            }
-             #appContainer header h1, #appContainer header p, 
-             #orderPageContainer header, 
-             #quickSaleModal header {
-             }
-             #quickSaleButtonContainerTop, 
-             #salesReportButton,
-             #addProductToMenuButton,
-             #editProductMenuButton,
-             #manageTablesButton,
-             #manageWaitersButton
-              { 
+            #receiptModalContent .print-hide,
+            #receiptModalContent .md\:p-8 /* Tailwind'den gelen padding'leri sıfırla */
+            {
                 display: none !important;
-             }
-
-            #receiptModalContent h2 { 
-                font-size: 11pt;
+            }
+            
+            #receiptModalContent h2 {
+                font-size: 10pt; /* Daha küçük başlık */
                 font-weight: bold;
-                margin-bottom: 3mm;
+                margin-bottom: 2mm;
                 text-align: center;
             }
-             #receiptModalContent p, #receiptModalContent div#receiptItems > div {
-                line-height: 1.3;
-                margin-bottom: 1mm;
+            #receiptModalContent p {
+                margin-bottom: 0.5mm; /* Paragraflar arası boşluk azaltıldı */
             }
-            #receiptModalContent div#receiptItems > div { 
+            #receiptModalContent hr {
+                margin-top: 1.5mm;
+                margin-bottom: 1.5mm;
+                border-top: 1px dashed #555; /* Daha belirgin kesik çizgi */
+            }
+            #receiptModalContent div#receiptItems > div {
                 display: flex;
                 justify-content: space-between;
-                flex-wrap: wrap; 
+                flex-wrap: nowrap; /* Satır içinde kalsın, alta kaymasın */
+                margin-bottom: 0.5mm;
             }
-             #receiptModalContent div#receiptItems span.item-details {
-                flex-basis: 70%; 
-             }
-             #receiptModalContent div#receiptItems span.item-price {
-                 flex-basis: 30%; 
-                 text-align: right;
-             }
+            #receiptModalContent div#receiptItems span.item-details {
+                flex-basis: auto; /* Otomatik genişlik */
+                margin-right: 2mm; /* Ürün adı ve fiyat arası boşluk */
+                white-space: normal; /* Uzun ürün adları için */
+                word-break: break-word;
+            }
+            #receiptModalContent div#receiptItems span.item-price {
+                flex-basis: content; /* İçeriğe göre genişlik */
+                text-align: right;
+                white-space: nowrap; /* Fiyat tek satırda kalsın */
+            }
             #receiptModalContent div#receiptItems span.item-description,
-            #receiptModalContent div#receiptItems span.item-waiter { 
+            #receiptModalContent div#receiptItems span.item-waiter {
                 display: block;
-                font-size: 7pt;
-                padding-left: 5mm;
-                color: #555;
-                flex-basis: 100%; 
+                font-size: 7pt; /* Açıklama için daha küçük font */
+                padding-left: 3mm; /* Biraz içeriden başlasın */
+                color: #333;
+                flex-basis: 100%;
+                margin-top: 0.2mm;
             }
-             #receiptModalContent .discount-info { 
-                 font-weight: bold;
-                 color: #dc2626; 
-             }
-            #receiptModalContent hr {
-                margin-top: 2mm;
-                margin-bottom: 2mm;
-                border-top: 1px dashed #999;
-            }
-            #receiptModalContent .text-right p#receiptTotalLine { 
-                font-size: 10pt;
+            #receiptModalContent .discount-info {
                 font-weight: bold;
+                color: #000; /* İndirim bilgisi de siyah olabilir veya isteğe bağlı */
             }
-            #receiptModalContent p.thank-you-note { 
-                 margin-top: 4mm;
-                 text-align: center;
-                 font-size: 8pt;
+             #receiptModalContent .discount-info div {
+                display: flex;
+                justify-content: space-between;
+            }
+            #receiptModalContent .text-right p#receiptTotalLine {
+                font-size: 9pt; /* Toplam için biraz daha büyük */
+                font-weight: bold;
+                margin-top: 1mm;
+            }
+            #receiptModalContent p.thank-you-note {
+                margin-top: 3mm;
+                text-align: center;
+                font-size: 7pt;
+            }
+
+            /* Diğer sayfa elementlerini ve yazdırma dışı kalacakları gizle */
+            #loginModal, #appContainer, #orderPageContainer, #quickSaleModal, 
+            #addProductToMenuModal, #editProductModal, #manageTablesModal, #manageWaitersModal,
+            #confirmDeleteTableModal, #confirmDeleteWaiterModal, #salesReportModal, #loadingOverlay,
+            #confirmCloseTableModal, #confirmDiscountModal {
+                display: none !important;
             }
         }
     </style>
@@ -414,19 +400,19 @@
         </div>
     </div>
 
-    <div id="receiptModal" class="modal fixed inset-0 bg-gray-900 bg-opacity-75 items-center justify-center z-50">
+   <div id="receiptModal" class="modal fixed inset-0 bg-gray-900 bg-opacity-75 items-center justify-center z-50">
         <div id="receiptModalContent" class="bg-white p-6 md:p-8 rounded-lg shadow-xl w-full max-w-md max-h-[90vh] flex flex-col">
             <div class="flex-grow overflow-y-auto">
-                <h2 class="text-2xl font-bold text-center mb-2 text-gray-800">İSABET SATIŞ</h2>
+                <h2 class="text-2xl font-bold text-center mb-2 text-gray-800">EMET LEZZET GÜNLERİ</h2>
                 <p class="text-center text-sm text-gray-600 mb-1">Fiş/Adisyon</p>
                 <p class="text-center text-sm text-gray-600 mb-4">Tarih: <span id="receiptDate"></span></p>
                 <div class="mb-2">
                     <p class="text-sm"><span class="font-semibold">Masa:</span> <span id="receiptTableName"></span></p>
-                    <p class="text-sm"><span class="font-semibold">Garson/Kasa:</span> <span id="receiptWaiterName">Bilinmiyor</span></p> 
+                    <p class="text-sm"><span class="font-semibold">Garson/Kasa:</span> <span id="receiptWaiterName">Bilinmiyor</span></p>
                 </div>
                 <hr class="my-2 border-gray-300">
                 <div id="receiptItems" class="text-sm space-y-1 mb-2">
-                    </div>
+                </div>
                 <div id="receiptDiscountInfo" class="text-sm my-2 hidden">
                     <hr class="my-1 border-gray-300">
                     <div class="flex justify-between">
@@ -444,7 +430,7 @@
                 </div>
                 <p class="thank-you-note text-center text-xs text-gray-500 mt-6">Teşekkür Ederiz!</p>
             </div>
-            <div class="mt-auto pt-4 flex space-x-2">
+            <div class="mt-auto pt-4 flex space-x-2 print-hide">
                 <button id="printReceiptButton" class="flex-1 bg-green-500 hover:bg-green-600 text-white font-semibold p-3 rounded-md transition duration-150">Yazdır</button>
                 <button id="closeReceiptModalOnlyButton" class="flex-1 bg-gray-500 hover:bg-gray-600 text-white font-semibold p-3 rounded-md transition duration-150">Kapat</button>
             </div>
@@ -1846,7 +1832,7 @@
         prepareAndShowReceipt(appState.currentQuickSaleOrder, "Hızlı Satış", appState.user.username, appState.currentOrderOriginalTotal, appState.currentOrderDiscountAmount > 0 ? finalTotal : null);
     }
 
-    function prepareAndShowReceipt(orderItems, tableName, waiterName, originalTotal, discountedTotalValue) {
+   function prepareAndShowReceipt(orderItems, tableName, waiterName, originalTotal, discountedTotalValue) {
         receiptDate.textContent = getCurrentFormattedDate();
         receiptTableName.textContent = tableName;
         
@@ -1863,9 +1849,13 @@
         orderItems.forEach(item => {
             let itemName = item.name || 'Bilinmeyen Ürün'; 
             let itemPrice = item.priceAtOrder || 0; 
-            const productDetails = appState.products.find(p => p.id === item.productId); 
-            if(productDetails && !item.name) { 
-                itemName = productDetails.name;
+            // Sunucudan gelen ürün listesinden (appState.products) ürün detayını bulma kısmı
+            // Eğer item.productId varsa ve appState.products tanımlıysa:
+            if (item.productId && typeof appState !== 'undefined' && appState.products) {
+                 const productDetails = appState.products.find(p => p.id === item.productId); 
+                 if(productDetails && !item.nameFromOrder) { // item.nameFromOrder gibi bir alanla manuel girilen isimleri koruyabilirsiniz
+                    itemName = productDetails.name;
+                 }
             }
             
             let descriptionHTML = '';
@@ -1879,9 +1869,19 @@
             }
 
             const itemDiv = document.createElement('div');
+            // Fiş görünümü için ürün adı ve fiyatını yan yana getirme
             itemDiv.innerHTML = `
-                <span class="item-details">${item.quantity}x ${itemName} ${descriptionHTML} ${itemWaiterHTML}</span>
+                <span class="item-details">${item.quantity}x ${itemName}</span>
                 <span class="item-price">${formatPrice(item.quantity * itemPrice)}</span>`;
+            // Açıklama ve garson bilgisini alt satıra ekleme (eğer varsa)
+            if (descriptionHTML || itemWaiterHTML) {
+                 const detailsDiv = document.createElement('div');
+                 detailsDiv.style.flexBasis = '100%'; // Tam genişlik kaplasın
+                 detailsDiv.style.paddingLeft = '10px'; // Biraz içeriden başlasın
+                 if (descriptionHTML) detailsDiv.innerHTML += descriptionHTML;
+                 if (itemWaiterHTML) detailsDiv.innerHTML += itemWaiterHTML;
+                 itemDiv.appendChild(detailsDiv);
+            }
             receiptItems.appendChild(itemDiv);
         });
 
@@ -1898,6 +1898,7 @@
         receiptModal.classList.add('active');
     }
     
+    // Bu fonksiyon da zaten dosyanızda mevcut olmalı
     function handlePrintReceipt() {
         window.print();
     }
