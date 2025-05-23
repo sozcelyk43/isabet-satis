@@ -23,11 +23,12 @@
         table { width: 100%; border-collapse: collapse; margin-top: 20px; }
         th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
         th { background-color: #ecf0f1; }
-        pre { background-color: #eee; padding: 10px; border: 1px solid #ccc; border-radius: 4px; white-space: pre-wrap; word-wrap: break-word; }
+        pre { background-color: #eee; padding: 10px; border: 1px solid #ccc; border-radius: 4px; white-space: pre-wrap; word-wrap: break-word; max-height: 400px; overflow-y: auto;}
         .section { margin-bottom: 30px; }
         .hidden { display: none; }
         #programAdi { text-align: center; margin-bottom: 30px; font-size: 2em; }
-        #cartItems li { margin-bottom: 5px; }
+        #cartItems li { margin-bottom: 5px; display: flex; justify-content: space-between; align-items: center; }
+        #cartItems li button { margin-left: 10px; padding: 2px 5px; font-size: 12px; margin-top: 0;}
     </style>
 </head>
 <body>
@@ -58,7 +59,7 @@
             </div>
             <div>
                 <label for="productStock">Stok:</label>
-                <input type="number" id="productStock" value="0">
+                <input type="number" id="productStock" value="0" min="0">
             </div>
             <button type="submit" id="saveProductButton">Ürün Ekle</button>
             <button type="button" id="cancelEditButton" class="hidden" style="background-color: #7f8c8d;">İptal</button>
@@ -70,21 +71,21 @@
                 <tr>
                     <th>ID</th>
                     <th>Ad</th>
-                    <th>Fiyat</th>
+                    <th>Fiyat (TL)</th>
                     <th>Açıklama</th>
                     <th>Stok</th>
                     <th>İşlemler</th>
                 </tr>
             </thead>
             <tbody>
-                </tbody>
+            </tbody>
         </table>
     </div>
 
     <div class="container section">
         <h2>Satış İşlemi (POS)</h2>
-        <div style="display: flex; gap: 20px;">
-            <div style="flex: 1;">
+        <div style="display: flex; flex-wrap: wrap; gap: 20px;">
+            <div style="flex: 1; min-width: 300px;">
                 <h3>Sepete Ürün Ekle</h3>
                 <div>
                     <label for="posProductSelect">Ürün Seç:</label>
@@ -96,7 +97,7 @@
                 </div>
                 <button type="button" id="addToCartButton">Sepete Ekle</button>
             </div>
-            <div style="flex: 1;">
+            <div style="flex: 1; min-width: 300px;">
                 <h3>Sepet</h3>
                 <ul id="cartItems"></ul>
                 <p><strong>Toplam Tutar:</strong> <span id="cartTotal">0.00</span> TL</p>
@@ -127,30 +128,28 @@
     </div>
 
 <script>
-    const API_BASE_URL = ''; // Backend URL'si (Render.com'a yüklendiğinde genellikle aynı origin olacağı için boş bırakılabilir)
+    const API_BASE_URL = '';
 
-    // Globals
     let masaSayisiGlobal = 0;
     let currentCart = [];
+    let allProducts = [];
 
-    // --- Yardımcı Fonksiyonlar ---
     async function fetchData(endpoint, options = {}) {
         try {
             const response = await fetch(`${API_BASE_URL}/api${endpoint}`, options);
             if (!response.ok) {
                 const errorData = await response.json().catch(() => ({ message: response.statusText }));
-                throw new Error(`HTTP error! status: ${response.status}, message: ${errorData.message}`);
+                throw new Error(`HTTP error! status: ${response.status}, message: ${errorData.message || 'Bilinmeyen sunucu hatası'}`);
             }
-            if (response.status === 204) return null; // No content
+            if (response.status === 204 || response.headers.get("content-length") === "0") return null;
             return await response.json();
         } catch (error) {
             console.error(`Error fetching ${endpoint}:`, error);
-            alert(`Veri alınırken/gönderilirken hata: ${error.message}`);
+            alert(`İstek sırasında hata: ${error.message}`);
             throw error;
         }
     }
 
-    // --- Program Bilgileri ---
     async function loadProgramInfo() {
         try {
             const info = await fetchData('/info');
@@ -174,8 +173,6 @@
         }
     }
 
-
-    // --- Ürün Yönetimi ---
     const productForm = document.getElementById('productForm');
     const productsTableBody = document.getElementById('productsTable').getElementsByTagName('tbody')[0];
     const productIdInput = document.getElementById('productId');
@@ -188,16 +185,16 @@
 
     async function loadProducts() {
         try {
-            const products = await fetchData('/products');
-            productsTableBody.innerHTML = ''; // Tabloyu temizle
+            allProducts = await fetchData('/products');
+            productsTableBody.innerHTML = '';
             const posProductSelect = document.getElementById('posProductSelect');
-            posProductSelect.innerHTML = '<option value="">Ürün Seçin...</option>'; // POS için ürün seçimi
+            posProductSelect.innerHTML = '<option value="">Ürün Seçin...</option>';
 
-            products.forEach(product => {
+            allProducts.forEach(product => {
                 const row = productsTableBody.insertRow();
                 row.insertCell().textContent = product.id;
                 row.insertCell().textContent = product.name;
-                row.insertCell().textContent = product.price;
+                row.insertCell().textContent = parseFloat(product.price).toFixed(2);
                 row.insertCell().textContent = product.description || '';
                 row.insertCell().textContent = product.stock;
 
@@ -212,15 +209,12 @@
                 deleteButton.textContent = 'Sil';
                 deleteButton.classList.add('delete');
                 deleteButton.style.marginLeft = '5px';
-                deleteButton.onclick = () => deleteProduct(product.id);
+                deleteButton.onclick = () => deleteProduct(product.id, product.name);
                 actionsCell.appendChild(deleteButton);
 
-                // POS ürün seçimine ekle
                 const option = document.createElement('option');
                 option.value = product.id;
-                option.textContent = `${product.name} (${product.price} TL)`;
-                option.dataset.price = product.price; // Fiyatı sakla
-                option.dataset.name = product.name; // Adı sakla
+                option.textContent = `${product.name} (${parseFloat(product.price).toFixed(2)} TL)`;
                 posProductSelect.appendChild(option);
             });
         } catch (error) {
@@ -231,12 +225,13 @@
     function populateProductFormForEdit(product) {
         productIdInput.value = product.id;
         productNameInput.value = product.name;
-        productPriceInput.value = product.price;
+        productPriceInput.value = parseFloat(product.price).toFixed(2);
         productDescriptionInput.value = product.description || '';
         productStockInput.value = product.stock;
         saveProductButton.textContent = 'Ürünü Güncelle';
         cancelEditButton.classList.remove('hidden');
-        window.scrollTo(0, productForm.offsetTop); // Forma scroll yap
+        productNameInput.focus();
+        window.scrollTo({ top: productForm.offsetTop - 20 , behavior: 'smooth' });
     }
 
     function resetProductForm() {
@@ -259,14 +254,14 @@
 
         const id = productIdInput.value;
         try {
-            if (id) { // Update
+            if (id) {
                 await fetchData(`/products/${id}`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(productData)
                 });
                 alert('Ürün başarıyla güncellendi!');
-            } else { // Create
+            } else {
                 await fetchData('/products', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -275,25 +270,25 @@
                 alert('Ürün başarıyla eklendi!');
             }
             resetProductForm();
-            loadProducts(); // Listeyi yenile
+            loadProducts();
         } catch (error) {
-            // Hata mesajı fetchData içinde zaten gösteriliyor.
+            // Handled by fetchData
         }
     });
 
-    async function deleteProduct(id) {
-        if (confirm(`${id} ID'li ürünü silmek istediğinizden emin misiniz?`)) {
+    async function deleteProduct(id, name) {
+        if (confirm(`"${name}" adlı ürünü silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.`)) {
             try {
                 await fetchData(`/products/${id}`, { method: 'DELETE' });
                 alert('Ürün başarıyla silindi!');
-                loadProducts(); // Listeyi yenile
+                loadProducts();
+                resetProductForm(); // Eğer silinen ürün formda ise formu temizle
             } catch (error) {
-                // Hata mesajı fetchData içinde zaten gösteriliyor.
+                 // Handled by fetchData
             }
         }
     }
 
-    // --- Satış İşlemleri (POS) ---
     const addToCartButton = document.getElementById('addToCartButton');
     const posProductSelect = document.getElementById('posProductSelect');
     const posQuantityInput = document.getElementById('posQuantity');
@@ -308,24 +303,27 @@
             return;
         }
         const productId = parseInt(selectedOption.value);
-        const productName = selectedOption.dataset.name;
-        const productPrice = parseFloat(selectedOption.dataset.price);
         const quantity = parseInt(posQuantityInput.value);
 
         if (quantity <= 0) {
             alert('Miktar 0 dan büyük olmalıdır.');
             return;
         }
+        
+        const productDetails = allProducts.find(p => p.id === productId);
+        if (!productDetails) {
+            alert('Seçilen ürün bulunamadı.');
+            return;
+        }
 
-        // Sepette aynı ürün varsa miktarını artır
-        const existingItem = currentCart.find(item => item.productId === productId);
-        if (existingItem) {
-            existingItem.quantity += quantity;
+        const existingItemIndex = currentCart.findIndex(item => item.productId === productId);
+        if (existingItemIndex > -1) {
+            currentCart[existingItemIndex].quantity += quantity;
         } else {
             currentCart.push({
                 productId: productId,
-                name: productName,
-                priceAtSale: productPrice,
+                name: productDetails.name,
+                priceAtSale: parseFloat(productDetails.price),
                 quantity: quantity
             });
         }
@@ -337,17 +335,17 @@
         let total = 0;
         currentCart.forEach((item, index) => {
             const li = document.createElement('li');
-            li.textContent = `${item.name} - ${item.quantity} adet x ${item.priceAtSale.toFixed(2)} TL = ${(item.quantity * item.priceAtSale).toFixed(2)} TL`;
+            const itemText = document.createElement('span');
+            itemText.textContent = `${item.name} - ${item.quantity} adet x ${item.priceAtSale.toFixed(2)} TL = ${(item.quantity * item.priceAtSale).toFixed(2)} TL`;
             
             const removeButton = document.createElement('button');
             removeButton.textContent = 'Kaldır';
-            removeButton.style.marginLeft = '10px';
-            removeButton.style.padding = '2px 5px';
-            removeButton.style.fontSize = '12px';
+            removeButton.classList.add('delete');
             removeButton.onclick = () => {
                 currentCart.splice(index, 1);
                 renderCart();
             };
+            li.appendChild(itemText);
             li.appendChild(removeButton);
             cartItemsUl.appendChild(li);
             total += item.quantity * item.priceAtSale;
@@ -365,7 +363,12 @@
         const totalAmount = parseFloat(cartTotalSpan.textContent);
 
         const saleData = {
-            items: currentCart,
+            items: currentCart.map(item => ({ // Sadece gerekli bilgileri gönder
+                productId: item.productId,
+                name: item.name, // Fişte göstermek için faydalı olabilir
+                quantity: item.quantity,
+                priceAtSale: item.priceAtSale
+            })),
             total: totalAmount,
             tableId: parseInt(tableId),
             paymentType: paymentType
@@ -378,21 +381,17 @@
                 body: JSON.stringify(saleData)
             });
             alert('Satış başarıyla tamamlandı ve loglandı!');
-            console.log('Fiş Verisi:', result.receiptData); // Fiş verisini konsola yazdır
-            // Fiş yazdırma için result.receiptData kullanılabilir.
-            // Örnek: generateReceipt(result.receiptData);
+            console.log('Fiş Verisi:', result.receiptData);
             currentCart = [];
             renderCart();
             posQuantityInput.value = 1;
-            posProductSelect.selectedIndex = 0;
-            loadProducts(); // Stok güncellenmiş olabilir
+            posProductSelect.value = ""; // Seçimi sıfırla
+            // İsteğe bağlı: loadProducts(); // Stok güncellendiyse listeyi yenile
         } catch (error) {
-            // Hata fetchData içinde gösteriliyor.
+            // Handled by fetchData
         }
     });
 
-
-    // --- Log Görüntüleme ---
     const fetchSalesLogButton = document.getElementById('fetchSalesLogButton');
     const fetchActivityLogButton = document.getElementById('fetchActivityLogButton');
     const logTitle = document.getElementById('logTitle');
@@ -408,20 +407,17 @@
             const logs = await fetchData(endpoint);
             logDataPre.textContent = JSON.stringify(logs, null, 2);
         } catch (error) {
-            logDataPre.textContent = `Loglar yüklenirken hata oluştu: ${error.message}`;
+            logDataPre.textContent = `Loglar yüklenirken hata oluştu.`;
         }
     }
 
     fetchSalesLogButton.addEventListener('click', () => fetchAndDisplayLogs('sales'));
     fetchActivityLogButton.addEventListener('click', () => fetchAndDisplayLogs('activity'));
 
-
-    // --- Sayfa Yüklendiğinde Çalışacaklar ---
     document.addEventListener('DOMContentLoaded', () => {
         loadProgramInfo();
         loadProducts();
     });
-
 </script>
 </body>
 </html>
