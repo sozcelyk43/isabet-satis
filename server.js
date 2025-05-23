@@ -304,29 +304,16 @@ wss.on('connection', (ws) => {
                     break;
 
                 case 'get_sales_report':
-                    if (!ws.userId || ws.role !== 'cashier') { 
-                        ws.send(JSON.stringify({ type: 'error', payload: { message: 'Yetkiniz yok.' }})); 
-                        break; 
-                    }
-                    try {
-                        const { rows } = await pool.query('SELECT * FROM sales_log ORDER BY closing_timestamp DESC');
-                        const reportData = rows.map(row => ({
-                            productId: row.product_id,
-                            name: row.name,
-                            quantity: row.quantity,
-                            priceAtOrder: parseFloat(row.price_at_order),
-                            description: row.description,
-                            tableName: row.table_name,
-                            waiterUsername: row.waiter_username,
-                            closedBy: row.closed_by,
-                            timestamp: row.original_item_timestamp,
-                            closingTimestamp: row.closing_timestamp
-                        }));
-                        ws.send(JSON.stringify({ type: 'sales_report_data', payload: { sales: reportData } }));
-                    } catch (dbError) {
-                        console.error('Satış raporu alınırken veritabanı hatası:', dbError);
-                        ws.send(JSON.stringify({ type: 'error', payload: { message: 'Rapor alınırken sunucu hatası.' }}));
-                    }
+                  try {
+                    const { rows } = await pool.query('SELECT * FROM sales_log ORDER BY closing_timestamp DESC');
+                    
+                    ws.send(JSON.stringify({ type: 'sales_report_data', payload: { sales: reportData } }));
+
+                } catch (dbError) {
+                    console.error('Satış raporu alınırken veritabanı hatası:', dbError); 
+                    ws.send(JSON.stringify({ type: 'error', payload: { message: 'Rapor alınırken sunucu hatası.' }}));
+                }
+                break;
                     break;
 
                 case 'add_product_to_main_menu':
